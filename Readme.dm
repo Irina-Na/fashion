@@ -28,10 +28,11 @@ mv /path/to/clothes_enriched.csv data/
 docker build -t fashion-stylist:latest .
 
 #Run
+docker run --rm -d -p 8510:8510/tcp fashion-stylist:latest 
 
 #Run with special df:
 docker run --rm \
-  -p 8501:8501 \
+  -p 8510:8510 \
   -v "$(pwd)/data/clothes_enriched.csv":/data/clothes_enriched.csv \
   fashion-stylist:latest
 Open http://localhost:8501 and start styling!

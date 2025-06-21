@@ -2,7 +2,8 @@
 from __future__ import annotations
 import os
 from typing import Dict, List, Optional
-
+from dotenv import load_dotenv
+import os
 import pandas as pd
 from pydantic import BaseModel, Field
 import openai
@@ -42,7 +43,11 @@ def generate_look(user_text: str, model: str = "gpt-4o-mini") -> OneTotalLook:
     Запрашивает LLM и возвращает структурированный OneTotalLook.
     Ключ API можно передать напрямую или через переменную окружения OPENAI_API_KEY.
     """
-    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    load_dotenv()
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    client = openai.OpenAI(api_key=api_key)
     messages = [
         {"role": "system", "content": _SYSTEM_PROMPT.format(request=user_text)},
     ]

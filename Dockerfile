@@ -28,7 +28,7 @@ COPY .env ./
 RUN useradd -ms /bin/bash appuser
 USER appuser
 
-# 5. Default command → Streamlit on port 8501
-ENV PORT=8501
-EXPOSE 8501
-ENTRYPOINT ["streamlit", "run", "app.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+# 5. Default command → Streamlit on port 8510
+ENV PORT=8510
+EXPOSE 8510
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port", "8510", "--server.address", "0.0.0.0"]
