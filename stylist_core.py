@@ -40,9 +40,9 @@ _SYSTEM_PROMPT = """\
 def generate_look(user_text: str, model: str = "gpt-4o-mini") -> OneTotalLook:
     """
     Запрашивает LLM и возвращает структурированный OneTotalLook.
-    Требуется переменная окружения OPENAI_API_KEY или ключ в streamlit secrets.
+    Ключ API можно передать напрямую или через переменную окружения OPENAI_API_KEY.
     """
-    client = openai.OpenAI()                 # openai.api_key берётся из env/secrets
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     messages = [
         {"role": "system", "content": _SYSTEM_PROMPT.format(request=user_text)},
     ]

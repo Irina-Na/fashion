@@ -43,10 +43,6 @@ user_query = st.text_area(
 )
 
 
-# обновляем env, даже если пользователь не менял значение —
-# это гарантирует наличие ключа для generate_look
-os.environ["OPENAI_API_KEY"] = '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'  
-
 model_choice = st.sidebar.selectbox(
     "LLM-модель", ["gpt-4o-mini", "gpt-4o", "gpt-4"], index=0
 )
