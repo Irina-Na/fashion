@@ -3,7 +3,21 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
+*.csv
+*.parquet
+*.json
+*.txt
+*.md
+*.html
+*.css
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.webp
+/data/*
 # Distribution / packaging
 build/
 dist/

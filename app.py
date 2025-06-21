@@ -1,26 +1,39 @@
 # app.py
 import os
+from pathlib import Path
 import streamlit as st
 import pandas as pd
+import ast
+# --- ваш бизнес-код ---
 from stylist_core import generate_look, filter_dataset
+
+# ──────────────────────────────────────────────────────────────
+# Константы (можно переопределить через переменные окружения)
+DATA_DIR = Path(__file__).resolve().parent / "data"
+DEFAULT_DATA_PATH = Path(
+    os.getenv("DATA_PATH", DATA_DIR / "clothes_enriched.csv")
+).expanduser()
+DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+SUPPORTED_EXT = {".parquet", ".csv"}
+# ──────────────────────────────────────────────────────────────
 
 st.set_page_config(page_title="Fashion Look Finder", layout="wide")
 st.title("👗 Total-Look Stylist")
 
-# --- загрузка датасета ---
-@st.cache_data(show_spinner="Загружаем датасет…")
-def load_data(path: str) -> pd.DataFrame:
-    return pd.read_parquet(path)  # или CSV/SQL — замените на свой формат
+def to_list(val):
+    """
+    Преобразует строку-представление списка в настоящий список.
+    Оставляет без изменений NaN и уже готовые списки.
+    """
+    if pd.isna(val) or isinstance(val, list):
+        return val
+    return ast.literal_eval(val)   # безопасный eval для литералов
 
-DATA_PATH = st.sidebar.text_input(
-    "Путь к датасету (parquet/CSV)", value="df_enriched.parquet"
+df_enriched = pd.read_csv(
+    DEFAULT_DATA_PATH,
+    converters={'category_id': to_list}
 )
-if DATA_PATH and os.path.isfile(DATA_PATH):
-    df_enriched = load_data(DATA_PATH)
-    st.sidebar.success("Датасет загружен")
-else:
-    st.sidebar.error("Файл не найден")
-    st.stop()
 
 # --- ввод запроса пользователя ---
 user_query = st.text_area(
@@ -29,33 +42,32 @@ user_query = st.text_area(
     height=120,
 )
 
-api_key = st.sidebar.text_input(
-    "OpenAI API key (если не в ENV/Secrets)",
-    type="password",
-    value=os.getenv("OPENAI_API_KEY", ""),
-)
-if api_key:
-    os.environ["OPENAI_API_KEY"] = api_key
+
+# обновляем env, даже если пользователь не менял значение —
+# это гарантирует наличие ключа для generate_look
+os.environ["OPENAI_API_KEY"] = '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'  
 
 model_choice = st.sidebar.selectbox(
-    "LLM модель", ["gpt-4o-mini", "gpt-4o", "gpt-4"], index=0
+    "LLM-модель", ["gpt-4o-mini", "gpt-4o", "gpt-4"], index=0
 )
 
+# --- обработка запроса ---
 if st.button("Сгенерировать лук"):
     with st.spinner("Запрашиваем стилиста-ИИ…"):
         look = generate_look(user_query, model=model_choice)
+
     st.success("Образ сгенерирован")
     st.write("### Структура полученного лука")
     st.json(look.model_dump(), expanded=False)
 
-    # Фильтрация датасета
+    # --- фильтрация датасета ---
     with st.spinner("Подбираем вещи из каталога…"):
         results = filter_dataset(df_enriched, look)
 
-    # Вывод таблиц
+    # --- вывод таблиц ---
     for part, df_part in results.items():
-        if not df_part.empty:
+        if df_part.empty:
+            st.write(f"_{part}: подходящих вещей не найдено_")
+        else:
             st.subheader(part.capitalize())
             st.dataframe(df_part, use_container_width=True)
-        else:
-            st.write(f"_{part}: подходящих вещей не найдено_")

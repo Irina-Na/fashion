@@ -9,7 +9,7 @@ import openai
 
 # ---------- Pydantic models ----------
 class Item(BaseModel):
-    category: str = Field(..., description="название категории одежды")
+    category: str = Field(..., description="название категории одежды одним словом")
     fabric:  Optional[List[str]] = None
     color:   Optional[List[str]] = None
     pattern: Optional[List[str]] = None
@@ -17,7 +17,7 @@ class Item(BaseModel):
 
 
 class OneTotalLook(BaseModel):
-    sex:        str  = Field(..., description="женский, мужской, унисекс")
+    sex:        str  = Field(..., description="female, male, unisex")
     season:     Optional[str]      = Field(None, description="зимний, летний и т.п.")
     top:        Optional[List[Item]] = None
     bottom:     Optional[List[Item]] = None
@@ -32,6 +32,7 @@ _SYSTEM_PROMPT = """\
 Вот запрос пользователя: {request}.
 Проанализируй запрос и собери лук, который бы удовлетворял всем его требованиям.
 Выбери пол, сезон, укажи обувь. При необходимости добавь верхнюю одежду/аксессуары.
+Одно значение может состоять только из одного слова.
 """
 
 
@@ -54,8 +55,8 @@ def generate_look(user_text: str, model: str = "gpt-4o-mini") -> OneTotalLook:
         response_format=OneTotalLook,
     )
 
-    # parse() уже возвращает объект модели
-    return response
+    # .parse() возвращает специальный объект, сама модель в .choices[0].message.parsed
+    return response.choices[0].message.parsed
 
 
 # ---------- DF utilities ----------
@@ -65,6 +66,8 @@ def match_item(df: pd.DataFrame, itm: Item) -> pd.DataFrame:
     Раскомментируйте фильтры, как только заполните соответствующие столбцы датасета.
     """
     df_f = df[df["category_id"].str[0] == itm.category]
+    df_2 = df[df["name"].str.contains(itm.category)]
+    df_f = pd.concat([df_f, df_2])
 
     # if itm.color:
     #     df_f = df_f[df_f["color_hex"].isin(itm.color)]
@@ -78,16 +81,16 @@ def match_item(df: pd.DataFrame, itm: Item) -> pd.DataFrame:
     return df_f
 
 
-def filter_dataset(df_enriched: pd.DataFrame, look: OneTotalLook,
+def filter_dataset(df: pd.DataFrame, look: OneTotalLook,
                    max_per_item: int = 1) -> Dict[str, pd.DataFrame]:
     """
     Возвращает словарь {part: dataframe} с подходящими позициями.
     """
-    df_base = df_enriched.copy()
-    df_base = df_base[df_base.category_pieces == 1]
 
     if look.sex:
-        df_base = df_base[df_base["gender"].str.lower() == look.sex.lower()]
+        df_base = df[df["gender"].str.lower() == "unisex"]
+        df_sex = df[df["gender"].str.lower() == look.sex.lower()]
+        df_base = pd.concat([df_base, df_sex])
 
     parts = ['top', 'bottom', 'full', 'shoes', 'outerwear', 'accessories']
     results: Dict[str, pd.DataFrame] = {}
