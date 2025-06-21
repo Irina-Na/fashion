@@ -22,15 +22,16 @@ git clone https://github.com/you/fashion-stylist.git
 cd fashion-stylist
 # Put your df_enriched.parquet (or CSV) in ./data
 mkdir data
-mv /path/to/df_enriched.parquet data/
+mv /path/to/clothes_enriched.csv data/
 
 #Build
 docker build -t fashion-stylist:latest .
 
 #Run
+
+#Run with special df:
 docker run --rm \
   -p 8501:8501 \
-  -e OPENAI_API_KEY=sk-•••••• \
-  -v "$(pwd)/data/df_enriched.parquet":/data/df_enriched.parquet \
+  -v "$(pwd)/data/clothes_enriched.csv":/data/clothes_enriched.csv \
   fashion-stylist:latest
 Open http://localhost:8501 and start styling!

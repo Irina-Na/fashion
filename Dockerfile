@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 3. Copy source code
 COPY stylist_core.py app.py ./
+COPY data ./data
 
 # 4. Create non-root user (security best-practice)
 RUN useradd -ms /bin/bash appuser
