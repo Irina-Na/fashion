@@ -2,39 +2,16 @@
 from __future__ import annotations
 import os
 from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from pydantic import BaseModel, Field
+
 import openai
-
-# ---------- Pydantic models ----------
-class Item(BaseModel):
-    category: str = Field(..., description="название категории одежды одним словом")
-    fabric:  Optional[List[str]] = None
-    color:   Optional[List[str]] = None
-    pattern: Optional[List[str]] = None
-    fit:     Optional[str]       = None
+import prompts
+from prompts import OneTotalLook, Item
 
 
-class OneTotalLook(BaseModel):
-    sex:        str  = Field(..., description="female, male, unisex")
-    season:     Optional[str]      = Field(None, description="зимний, летний и т.п.")
-    top:        Optional[List[Item]] = None
-    bottom:     Optional[List[Item]] = None
-    full:       Optional[List[Item]] = None
-    shoes:      List[Item]
-    outerwear:  Optional[List[Item]] = None
-    accessories: Optional[List[Item]] = None
-
-
-_SYSTEM_PROMPT = """\
-Вы - профессиональный стилист, создающий total look.
-Вот запрос пользователя: {request}.
-Проанализируй запрос и собери лук, который бы удовлетворял всем его требованиям.
-Выбери пол, сезон, укажи обувь. При необходимости добавь верхнюю одежду/аксессуары.
-Одно значение может состоять только из одного слова.
-"""
 
 
 # ---------- LLM call ----------
@@ -49,14 +26,14 @@ def generate_look(user_text: str, model: str = "gpt-4o-mini") -> OneTotalLook:
     api_key = os.getenv("OPENAI_API_KEY")
     client = openai.OpenAI(api_key=api_key)
     messages = [
-        {"role": "system", "content": _SYSTEM_PROMPT.format(request=user_text)},
+        {"role": "system", "content": prompts.TOTAL_CREATIONLOOK_PROMPT.format(request=user_text)},
     ]
 
     response = client.beta.chat.completions.parse(
         model=model,
         messages=messages,
         temperature=0.0,
-        max_tokens=1000,
+        max_completion_tokens=1000,
         response_format=OneTotalLook,
     )
 

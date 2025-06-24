@@ -44,7 +44,7 @@ user_query = st.text_area(
 
 
 model_choice = st.sidebar.selectbox(
-    "LLM-модель", ["gpt-4o-mini", "gpt-4o", "gpt-4"], index=0
+    "LLM-модель", [ "gpt-4.1-nano", "gpt-4.1-mini", "gpt-4.1"], index=0
 )
 
 # --- обработка запроса ---
@@ -58,7 +58,7 @@ if st.button("Сгенерировать лук"):
 
     # --- фильтрация датасета ---
     with st.spinner("Подбираем вещи из каталога…"):
-        results = filter_dataset(df_enriched, look)
+        results = filter_dataset(df_enriched, look, max_per_item=100)
 
     # --- вывод таблиц ---
     for part, df_part in results.items():
