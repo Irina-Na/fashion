@@ -67,3 +67,22 @@ if st.button("Сгенерировать лук"):
         else:
             st.subheader(part.capitalize())
             st.dataframe(df_part, use_container_width=True)
+
+    # --- визуализация top-2 луков ---
+    st.markdown("### Top-2 total looks")
+    col1, col2 = st.columns(2)
+
+    def show_look(col, idx):
+        with col:
+            st.write(f"#### Look {idx+1}")
+            for part in ['accessories', 'outerwear', 'top', 'bottom', 'full', 'shoes']:
+                df_part = results.get(part)
+                if df_part is not None and len(df_part) > idx:
+                    row = df_part.iloc[idx]
+                    url = row.get('image_external_url')
+                    name = row.get('name', part)
+                    if url:
+                        st.image(url, caption=f"{part}: {name}")
+
+    show_look(col1, 0)
+    show_look(col2, 1)
