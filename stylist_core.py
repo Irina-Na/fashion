@@ -57,15 +57,28 @@ def match_item(df: pd.DataFrame, itm: Item) -> pd.DataFrame:
             df_2 = df_f[df_f["name"].str.contains(itm.color)]
             df_c = pd.concat([df_c, df_2])
         if df_c.shape[0] >=2:
-            return df_c
+            if itm.fabric: 
+                df_ff = df_c[df_c["name"].str.contains(itm.fabric)]
+                if df_ff.shape[0] >=2:
+                    if itm.pattern:
+                        df_p = df_ff[df_ff["name"].str.contains(itm.pattern)]
+                        if df_p.shape[0] >=2:
+                            if itm.fit:
+                                df_fit = df_ff[df_ff["fit"] == itm.fit]
+                                if df_fit.shape[0] >=2:
+                                    return df_fit
+                                else:
+                                    return df_p
+                        else:
+                            return df_ff
+                    else:
+                        return df_ff
+                else:
+                    return df_c
+            else: 
+                return df_c
         else:
             return df_f
-        #if itm.pattern and df_f.shape[0] >=2:
-        #    df_p = df_c[df_c["name"].str.contains(itm.pattern)]
-        # if itm.fabric:
-        #     df_f = df_f[df_f["fabric"].isin(itm.fabric)]
-        # if itm.fit:
-        #     df_f = df_f[df_f["fit"] == itm.fit]
     return df_f
 
 
