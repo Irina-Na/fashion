@@ -15,7 +15,7 @@ from prompts import OneTotalLook, Item
 
 
 # ---------- LLM call ----------
-def generate_look(user_text: str, model: str = "gpt-4o-mini") -> OneTotalLook:
+def generate_look(user_text: str, model: str = "gpt-4.1-mini") -> OneTotalLook:
     """
     Запрашивает LLM и возвращает структурированный OneTotalLook.
     Ключ API можно передать напрямую или через переменную окружения OPENAI_API_KEY.
@@ -51,16 +51,24 @@ def match_item(df: pd.DataFrame, itm: Item) -> pd.DataFrame:
     df_2 = df[df["name"].str.contains(itm.category)]
     df_f = pd.concat([df_f, df_2])
 
-    # if itm.color:
-    #     df_f = df_f[df_f["color_hex"].isin(itm.color)]
-    # if itm.pattern:
-    #     df_f = df_f[df_f["pattern_id"].isin(itm.pattern)]
-    # if itm.fabric:
-    #     df_f = df_f[df_f["fabric"].isin(itm.fabric)]
-    # if itm.fit:
-    #     df_f = df_f[df_f["fit"] == itm.fit]
-
+    if itm.color and df_f.shape[0] >=4:
+        df_c = df_f[df_f["color"].str.contains(itm.color)]
+        if df_c.shape[0] <=1:
+            df_2 = df_f[df_f["name"].str.contains(itm.color)]
+            df_c = pd.concat([df_c, df_2])
+        if df_c.shape[0] >=2:
+            return df_c
+        else:
+            return df_f
+        #if itm.pattern and df_f.shape[0] >=2:
+        #    df_p = df_c[df_c["name"].str.contains(itm.pattern)]
+        # if itm.fabric:
+        #     df_f = df_f[df_f["fabric"].isin(itm.fabric)]
+        # if itm.fit:
+        #     df_f = df_f[df_f["fit"] == itm.fit]
     return df_f
+
+
 
 
 def filter_dataset(df: pd.DataFrame, look: OneTotalLook,
@@ -82,7 +90,7 @@ def filter_dataset(df: pd.DataFrame, look: OneTotalLook,
         selections = []
         for itm in items:
             sub = match_item(df_base, itm)
-            if not sub.empty:
+            if sub is not None and not sub.empty:
                 selections.append(sub.head(max_per_item))
         results[part] = pd.concat(selections) if selections else pd.DataFrame()
 

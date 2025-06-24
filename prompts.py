@@ -23,9 +23,9 @@ For sex use female, male, unisex. For the rest, use Russian only.
 # ---------- Pydantic models ----------
 class Item(BaseModel):
     category: str = Field(..., description="название категории одежды одним словом")
-    fabric:  Optional[List[str]] = None
-    color:   Optional[List[str]] = None
-    pattern: Optional[List[str]] = None
+    fabric:  Optional[str] = None
+    color:   Optional[str] = Field(None, description="Use simple one-word color names (розовый, черный, и т.п.); avoid complex shades. If necessary, you may use светлый or темный instead of a specific color.")  
+    pattern: Optional[str] = None
     fit:     Optional[str]       = None
 
 

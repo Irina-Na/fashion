@@ -11,7 +11,7 @@ from stylist_core import generate_look, filter_dataset
 # Константы (можно переопределить через переменные окружения)
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DEFAULT_DATA_PATH = Path(
-    os.getenv("DATA_PATH", DATA_DIR / "clothes_enriched.csv")
+    os.getenv("DATA_PATH", DATA_DIR / "clothes_enriched_new_cat1_only.csv")
 ).expanduser()
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
@@ -34,7 +34,7 @@ df_enriched = pd.read_csv(
     DEFAULT_DATA_PATH,
     converters={'category_id': to_list}
 )
-
+df_enriched = df_enriched.fillna("")
 # --- ввод запроса пользователя ---
 user_query = st.text_area(
     "Опишите образ (любой свободный текст)",
