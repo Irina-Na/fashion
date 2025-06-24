@@ -16,6 +16,7 @@ Here's the user request: {request}.
 Analyze the request and put together a look that meets all the user's requirements.
 The basic outfit can consist of top+bottom or full.
 Also select gender, season, specify shoes. Add outerwear/accessories if needed.
+Avoid watches as accessories.
 One value can consist of only one word.
 For sex use female, male, unisex. For the rest, use Russian only.
 """
@@ -24,7 +25,7 @@ For sex use female, male, unisex. For the rest, use Russian only.
 class Item(BaseModel):
     category: str = Field(..., description="название категории одежды одним словом")
     fabric:  Optional[str] = None
-    color:   Optional[str] = Field(None, description="Use simple one-word color names (розовый, черный, и т.п.); avoid complex shades. If necessary, you may use светлый or темный instead of a specific color.")  
+    color:   Optional[str] = Field(None, description="Avoid complex shades(ультрамарин, сине-зеленый, темно синий). Use simple one-word color names (розовый, черный, и т.п.); If necessary, you may use just one word: 'светлый' or 'темный' instead of a specific color.")  
     pattern: Optional[str] = None
     fit:     Optional[str]       = None
 
