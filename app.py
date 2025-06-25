@@ -1,9 +1,18 @@
 # app.py
+'''import debugpy
+
+try:
+    debugpy.listen(("0.0.0.0", 5678))
+    debugpy.wait_for_client()
+except RuntimeError:
+    pass
+'''
 import os
 from pathlib import Path
 import streamlit as st
 import pandas as pd
 import ast
+import numpy as np
 # --- ваш бизнес-код ---
 from stylist_core import generate_look, filter_dataset
 
@@ -37,6 +46,8 @@ df_enriched = pd.read_csv(
 df_enriched = df_enriched.fillna("")
 
 df_enriched = df_enriched.drop_duplicates(['image_external_url']).drop_duplicates(['good_id', 'store_id'])
+#df_enriched = df_enriched[~df_enriched.image_external_url.str.contains('//imocean.ru/')]
+
 # --- ввод запроса пользователя ---
 user_query = st.text_area(
     "Опишите образ (любой свободный текст)",
@@ -48,6 +59,10 @@ user_query = st.text_area(
 model_choice = st.sidebar.selectbox(
     "LLM-модель", [ "gpt-4.1-nano", "gpt-4.1-mini", "gpt-4.1"], index=0
 )
+use_unisex_choice = st.sidebar.selectbox(
+    "Можно ли использовать в образе вещи, помеченные как Unisex?", [ "Можно", "Не использовать"], index=0
+)
+use_unisex_choice = True if use_unisex_choice == "Можно" else False
 
 # --- обработка запроса ---
 if st.button("Сгенерировать лук"):
@@ -61,7 +76,7 @@ if st.button("Сгенерировать лук"):
     
     # --- фильтрация датасета ---
     with st.spinner("Подбираем вещи из каталога…"):
-        results = filter_dataset(df_enriched, look, max_per_item=100)
+        results = filter_dataset(df_enriched, look, max_per_item=100, use_unisex_choice=use_unisex_choice)
 
     # --- вывод таблиц ---
     for part, df_part in results.items():

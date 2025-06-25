@@ -27,7 +27,7 @@ class Item(BaseModel):
     fabric:  Optional[str] = None
     color:   Optional[str] = Field(None, description="Avoid complex shades(ультрамарин, сине-зеленый, темно синий). Use simple one-word color names (розовый, черный, и т.п.); If necessary, you may use just one word: 'светлый' or 'темный' instead of a specific color.")  
     pattern: Optional[str] = None
-    fit:     Optional[str]       = None
+    detailes: Optional[str]  = None
 
 
 class OneTotalLook(BaseModel):

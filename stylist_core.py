@@ -55,10 +55,9 @@ def match_item(df: pd.DataFrame, itm: Item) -> pd.DataFrame:
 
     if itm.color:  #and df_f.shape[0] >=4:
         df_c = df_f[df_f["color"].str.contains(itm.color)]
-        if df_c.shape[0] <=1:
-            df_2 = df_f[df_f["name"].str.contains(itm.color)]
-            df_c = pd.concat([df_c, df_2])
-            df_c.drop_duplicates(['image_external_url'], inplace=True)
+        df_2 = df_f[df_f["name"].str.contains(itm.color)]
+        df_c = pd.concat([df_c, df_2])
+        df_c.drop_duplicates(['image_external_url'], inplace=True)
         if df_c.shape[0] >=2:
             if itm.fabric: 
                 df_ff = df_c[df_c["name"].str.contains(itm.fabric)]
@@ -68,11 +67,11 @@ def match_item(df: pd.DataFrame, itm: Item) -> pd.DataFrame:
                         df_p = df_ff[df_ff["name"].str.contains(itm.pattern)]
                         df_p.drop_duplicates(['image_external_url'], inplace=True)
                         if df_p.shape[0] >=2:
-                            if itm.fit:
-                                df_fit = df_ff[df_ff["fit"] == itm.fit]
-                                df_fit.drop_duplicates(['image_external_url'], inplace=True)
-                                if df_fit.shape[0] >=2:
-                                    return df_fit
+                            if itm.detailes:
+                                df_detailes = df_ff[df_ff["detailes"] == itm.detailes]
+                                df_detailes.drop_duplicates(['image_external_url'], inplace=True)
+                                if df_detailes.shape[0] >=2:
+                                    return df_detailes
                                 else:
                                     return df_p
                         else:
@@ -94,14 +93,17 @@ def filter_dataset(
     df: pd.DataFrame,
     look: OneTotalLook,
     max_per_item: int = 1,
+    use_unisex_choice: bool = True
 ) -> Dict[str, pd.DataFrame]:
     """
     Возвращает словарь { '<part>_<category>_<idx>': DataFrame }.
     """
 
     # 1️⃣ базовый срез по полу
-    if look.sex:
+    if look.sex and use_unisex_choice:
         df_base = df[df["gender"].str.lower().isin({"unisex", look.sex.lower()})]
+    elif look.sex:
+        df_base = df[df["gender"].str.lower().contains("unisex")]
     else:
         df_base = df.copy()
 
