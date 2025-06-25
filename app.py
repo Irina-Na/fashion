@@ -35,6 +35,8 @@ df_enriched = pd.read_csv(
     converters={'category_id': to_list}
 )
 df_enriched = df_enriched.fillna("")
+
+df_enriched = df_enriched.drop_duplicates(['image_external_url']).drop_duplicates(['good_id', 'store_id'])
 # --- ввод запроса пользователя ---
 user_query = st.text_area(
     "Опишите образ (любой свободный текст)",
@@ -56,6 +58,7 @@ if st.button("Сгенерировать лук"):
     st.write("### Структура полученного лука")
     st.json(look.model_dump(), expanded=False)
 
+    
     # --- фильтрация датасета ---
     with st.spinner("Подбираем вещи из каталога…"):
         results = filter_dataset(df_enriched, look, max_per_item=100)
@@ -75,8 +78,7 @@ if st.button("Сгенерировать лук"):
     def show_look(col, idx):
         with col:
             st.write(f"#### Look {idx+1}")
-            for part in ['accessories', 'outerwear', 'top', 'bottom', 'full', 'shoes']:
-                df_part = results.get(part)
+            for part, df_part in results.items():
                 if df_part is not None and len(df_part) > idx:
                     row = df_part.iloc[idx]
                     url = row.get('image_external_url')
