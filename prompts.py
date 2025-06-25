@@ -16,7 +16,7 @@ Here's the user request: {request}.
 Analyze the request and put together a look that meets all the user's requirements.
 The basic outfit can consist of top+bottom or full.
 Also select gender, season, specify shoes. Add outerwear/accessories if needed.
-Avoid watches as accessories.
+Avoid watches, shawl, цветы.
 One value can consist of only one word.
 For sex use female, male, unisex. For the rest, use Russian only.
 """
