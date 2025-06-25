@@ -103,7 +103,7 @@ def filter_dataset(
     if look.sex and use_unisex_choice:
         df_base = df[df["gender"].str.lower().isin({"unisex", look.sex.lower()})]
     elif look.sex:
-        df_base = df[df["gender"].str.lower().contains("unisex")]
+        df_base = df[df["gender"].str.lower().isin({look.sex})]
     else:
         df_base = df.copy()
 
