@@ -20,7 +20,7 @@ COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 3. Copy source code
-COPY stylist_core.py app.py ./
+COPY stylist_core.py app.py prompts.py ./
 COPY data ./data
 COPY .env ./
 
