@@ -25,6 +25,15 @@ DEFAULT_DATA_PATH = Path(
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 SUPPORTED_EXT = {".parquet", ".csv"}
+
+# Путь для хранения отзывов
+FEEDBACK_PATH = DATA_DIR / "users_feedback.csv"
+
+# Загружаем существующие отзывы или создаем новый DataFrame
+if FEEDBACK_PATH.exists():
+    users_feedback = pd.read_csv(FEEDBACK_PATH)
+else:
+    users_feedback = pd.DataFrame(columns=["user_query", "selected_look", "comment"])
 # ──────────────────────────────────────────────────────────────
 
 st.set_page_config(page_title="Fashion Look Finder", layout="wide")
@@ -103,3 +112,23 @@ if st.button("Сгенерировать лук"):
 
     show_look(col1, 0)
     show_look(col2, 1)
+    
+    st.markdown("### Выберите понравившийся образ")
+    selected = st.radio(
+        "Какой образ вам нравится больше?",
+        ["Look 1", "Look 2"],
+        horizontal=True,
+        key="look_choice",
+    )
+    comment = st.text_input("Комментарий", key="look_comment")
+    if st.button("Сохранить отзыв", key="save_feedback"):
+        new_row = {
+            "user_query": user_query,
+            "selected_look": selected,
+            "comment": comment,
+        }
+        users_feedback = pd.concat(
+            [users_feedback, pd.DataFrame([new_row])], ignore_index=True
+        )
+        users_feedback.to_csv(FEEDBACK_PATH, index=False)
+        st.success("Спасибо за отзыв!")
