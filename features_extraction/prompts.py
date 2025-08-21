@@ -62,7 +62,6 @@ class BottomItem(BaseModel):
 class FullBodyItem(BaseModel):
     """Attributes for dresses, jumpsuits, overalls — single full‑body pieces."""
     category: str
-    category: str
     sex: str = None            # f | m | u
     season: str = None         # summer | demi | winter
     fit: str = None            # fitted | semi‑fitted | oversize
@@ -147,7 +146,6 @@ class AccessoryItem(BaseModel):
     style: List[str] = Field(default_factory=list) 
     confidence: float = Field(..., ge=0, le=1)
 
-
 # ────────────────────────────────────────────────────────────────────────────────
 # Templates: per‑meta‑category configuration for LLM calls
 # ────────────────────────────────────────────────────────────────────────────────
@@ -224,6 +222,10 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
     },
 }
 
+class MetaCategory(BaseModel):   
+    meta_categoty: str = Field(..., description=f"any of {TEMPLATES.keys}")
+
+
 # NOTE: Replace placeholders {…} with actual strings or variables containing the relevant
 # enum lists and few‑shot examples before using `TEMPLATES` in production code.
 
@@ -277,138 +279,68 @@ You are a fashion-attribute extractor.
 • `confidence` is a float **0–1** (0.75 = medium-sure).
 • `style` one or a list of the following options: classic, bussiness-best, bussiness-casual, smart-casual, casual(base),  safari, military, marine, drama, romantic, feminine, jockey, dandy, retro, entic (boho), avant-garde.
 Instruction: For each garment description or image, assign every style whose criteria it meets. A match requires at least three of the listed criteria (silhouette, materials, colours/prints, unique markers). A single garment can carry multiple labels.
-CLASSIC
-• Idea & Mood: Formal neutrality; timeless “reliable uniform”.
-• Silhouette/Cut: Tailored, straight lines, jacket or knee‑length skirt.
-• Materials/Texture: Worsted wool, twill, crisp shirting.
-• Colours/Prints: Dark navy, charcoal, black, touches of white/beige; solid.
-• Unique Markers: Notch lapel, short button stance, pearl studs, sleek grooming.
 
-BUSINESS‑BEST
-• Idea & Mood: Strict, conservative corporate dress code.
-• Silhouette/Cut: Fitted trouser or pencil‑skirt suit, defined waist.
-• Materials: Super 120s wool, smooth cotton shirting.
-• Colours: Dark neutrals plus deep jewel accents (burgundy, emerald).
-• Markers: Closed‑toe pumps ≤5 cm, silk pocket square, minimal adornment.
+**Safari**  
+Natural fabrics (cotton, linen), sandy, khaki, olive tones. Pockets, belts, lacing, metal fittings. Functional with expedition character.
 
-BUSINESS‑CASUAL
-• Idea & Mood: “Office without a tie” – status + comfort.
-• Silhouette: Semi‑fitted blazer with chinos or midi skirt.
-• Materials: Blended suiting, jersey knits.
-• Colours: Muted basics with a soft accent (sky blue, muted red).
-• Markers: Clean loafers, subtle check/stripe, slim belt.
+**Military**  
+Strict silhouettes, uniform-like cuts, protective fabrics, khaki tones, camouflage, epaulettes, brass buttons. Military uniform attributes in civil fashion.
 
-SMART‑CASUAL
-• Idea & Mood: Polished yet relaxed city look.
-• Silhouette: Structured blazer over dark‑wash denim or culottes.
-• Materials: Fine cotton suiting, premium denim.
-• Colours: Neutral palette + single subdued accent.
-• Markers: Quality sneakers or Chelsea boots, leather backpack‑tote.
+**Marine**  
+Nautical theme: stripes, white-blue-red palette, sailor collars, telnyashka, golden buttons. Light fabrics for summer leisure, accent on freshness and “yachting chic”.
 
-CASUAL (BASE)
-• Idea & Mood: Functional modern basics.
-• Silhouette: Simple straight forms.
-• Materials: Cotton jersey, fleece, denim.
-• Colours: Core solids.
-• Markers: Minimal detail; designed to combine with anything.
+**Drama**  
+Theatrical effect, sexuality, aggression and luxury. Leather, latex, sequins, deep cuts, asymmetry, drapery. Black and jewel tones. “Wow-factor” items.
 
-SAFARI
-• Idea & Mood: Adventure, hot‑climate colonial chic.
-• Silhouette: Belted 4‑pocket jacket, shorts or banana trousers.
-• Materials: Cotton twill, linen.
-• Colours: Sand, khaki, olive.
-• Markers: Epaulettes, wide belt, straw hat, wooden ethnic jewellery.
+**Romantic**  
+Soft lines, light fabrics (silk, chiffon, lace), pastel tones, floral prints. Ruffles, bows, flounces. Silhouettes emphasize tenderness and refinement.
 
-MILITARY
-• Idea & Mood: Discipline, utilitarianism.
-• Silhouette: Straight or oversized with emphasised shoulders.
-• Materials: Rugged cotton, drill, serge.
-• Colours: Khaki, olive, camouflage.
-• Markers: Patch pockets, epaulettes, D‑rings, combat boots.
+**Feminine**  
+Emphasizes figure (fitted silhouettes, skirts, dresses), soft fabrics, elegant accessories. Palette from pastels to saturated, but always graceful.
 
-MARINE
-• Idea & Mood: Nautical freshness, retro cruise.
-• Silhouette: Semi‑fitted, pea coat, Breton top.
-• Materials: Cotton, wool.
-• Colours: Navy‑white‑red with gold buttons.
-• Markers: Horizontal stripe, anchors, deck shoes.
+**Jockey**  
+Equestrian-inspired: riding boots, breeches, slim trousers, vests, redingote jackets, leather gloves, jockey caps. Colors — cognac, black, burgundy.
 
-DRAMA
-• Idea & Mood: Wow‑effect, provocative sexuality.
-• Silhouette: Corset tops, exaggerated shoulders or flared shapes.
-• Materials: Leather, vinyl, sequins, latex.
-• Colours: Black plus jewel tones.
-• Markers: Spikes, chains, eyelets, high slits, thigh‑high “second‑skin” boots.
+**Dandy**  
+Men’s wardrobe with refined irony: perfectly tailored suits, waistcoats, ties, canes, hats. Luxurious fabrics, sometimes with vintage touch. Palette ranges from classic to bold accents.
 
-ROMANTIC
-• Idea & Mood: Softness, naivety, airiness.
-• Silhouette: Loose A‑lines, puff sleeves.
-• Materials: Silk, organza, lace.
-• Colours: Pastels, small florals, polka dots.
-• Markers: Ruffles, bows, pleats, thin belt.
+**Retro**  
+Clothing referencing past decades (20s, 50s, 70s). Characteristic silhouettes, prints, fabrics: pleats, flares, polka dots, vinyl, tweed.
 
-FEMININE
-• Idea & Mood: Elegant, grown‑up femininity.
-• Silhouette: Fitted blazer or sheath dress, midi length.
-• Materials: Wool, silk, fine‑gauge knit.
-• Colours: Any sophisticated hue, floral prints.
-• Markers: Delicate heels, waist emphasis, gloves, refined jewellery.
+**Ethnic**  
+National motifs: embroidery, ornaments, ethnic prints, folk fabrics (wool, linen, cotton). Loose silhouettes, amulet-like accessories.
 
-JOCKEY
-• Idea & Mood: English aristocratic equestrian sport.
-• Silhouette: Slim breeches + cropped riding jacket.
-• Materials: Wool, leather.
-• Colours: Brown, black, burgundy.
-• Markers: High riding boots with straps, kepi helmet, leather gloves.
+**Boho**  
+Freedom and layering: long skirts, loose dresses, vests, fringe, ethnic jewelry. Natural fabrics, warm earthy tones, mixed patterns. More bohemian than ethnic.
 
-DANDY
-• Idea & Mood: Masculine tailoring with refinement.
-• Silhouette: Menswear suit cut adapted to female figure.
-• Materials: Wool, tweed.
-• Colours: Grey, black, navy.
-• Markers: Waistcoat, tie, loafer/oxford shoes, pocket‑watch chain.
+**Avant-garde (minimalism)**  
+Maximum simplicity and “silence”: clear geometric silhouettes, monochrome, no decor. Focus on form, proportions and fabric texture.
 
-RETRO
-• Idea & Mood: Explicit quotation of the 1920s‑1950s.
-• Silhouette: Era signatures (drop waist, New Look).
-• Materials: Silk, brocade, nylon, corsetry fabrics.
-• Colours/Prints: Period prints (1950s polka dot, Art Deco motifs).
-• Markers: Midi length, corset + full skirt, pillbox hat, gloves.
+**Avant-garde (de-constructivism)**  
+Deliberate asymmetry, “broken” lines, inside-out seams, torn/reassembled elements. Experimental reinterpretation of clothing.
 
-ETHNIC
-• Idea & Mood: Direct citation of national costume.
-• Silhouette: A‑lines, ponchos, tunics.
-• Materials: Cotton, wool, heavy embroidery or beadwork.
-• Colours/Prints: Rich palette, traditional ornament.
-• Markers: Fringe, woven belts, chunky wooden/beaded jewellery.
+**Avant-garde (conceptualism)**  
+Clothing as idea or manifesto. May be sculptural or theatrical, not necessarily wearable. Unusual materials and forms; concept more important than practicality.
 
-BOHO
-• Idea & Mood: Free, bohemian ethnic mix.
-• Silhouette: Oversize, layered.
-• Materials: Linen, denim, macramé, suede.
-• Colours: Earthy plus bright accents, tie‑dye.
-• Markers: Fringe, embroidery, straw hats, cowboy ankle boots.
+**Classic**  
+Strict protocol clothing for officials: suit sets, closed dresses, calm palette (navy, grey, black, beige), minimal jewelry. Purpose — reliability and restraint, not fashion. timeless “reliable uniform”. Very rare. Qween family, etc.
 
-AVANT‑GARDE — MINIMALISM
-• Idea & Mood: “Simple but not simple”: laconic + asymmetry.
-• Silhouette: Clean volumes, architectural lines.
-• Materials: Smooth monochrome fabrics.
-• Colours: Neutrals (black/white, beige, graphite).
-• Markers: Single proportion‑breaking accent, zero decoration.
+**Business-best**  
+Modern version of classic for conservative professions (diplomats, bankers, lawyers). Strict suits, restrained colors (navy, grey, burgundy, emerald), small checks or stripes allowed. Contemporary cuts without extremes. Goal — status and trust.
 
-AVANT‑GARDE — DE‑CONSTRUCTIVISM
-• Idea & Mood: Broken construction, “Frankenstein garment”.
-• Silhouette: Asymmetry, exposed seams, hyper volume.
-• Materials: Wool, denim, mixed textiles.
-• Colours: Dark neutrals.
-• Markers: Lining on the outside, darts visible, spliced of two garments.
+**Business-casual**  
+Less strict business style: blazers, trousers, pencil skirts, blouses, soft suit fabrics. Neutral with muted accents. Allows modern silhouettes, textures and accessories. Professional but not rigid.
+Common in conservative industries focused on money and reputation: finance, law, pharmaceuticals. Usually explicitly prescribed and followed at all levels, especially by employees with representative functions — the “face of the company.” Modern cuts combined with a system of restrictions: clothing should minimize fuss, inspire trust, and convey stability and reliability — not flashy success, but steady professionalism.
 
-AVANT‑GARDE — CONCEPTUALISM
-• Idea & Mood: “Speaking clothes”, shock art fashion.
-• Silhouette: Any form dictated by concept.
-• Materials: Any, including non‑traditional (meat, plastic).
-• Colours: Chosen individually for the idea.
-• Markers: Runway or performance piece; meaning outweighs wearability.
+**Smart-casual**  Appropriate for both conservative and creative professions without a strict dress code. Balances fashion, chic, and individuality, allowing more freedom of self-expression while keeping a polished look.
+Relaxed business style with casual elements: blazer + jeans, shirt + chinos, simple dresses. Items combine comfort and respectability. Wider palette than business-casual but without excess.
+
+**Casual (base)**  
+Everyday basic style. City casual = BASE — Basic items that do not belong to any specific style.
+A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex asymmetry, or designer “tricks”);
+garments that qualify as basic = those with a straightforward cut.
+Surface: the shape is simple, but the surface can be interesting (fabric, texture, or color) so it doesn’t look boring. The surface may include texture or prints, but without complicating decorative details.
+"""
 
 ### Instructions
 1. Use **only** the exact enum values listed above, exclude fabric.
@@ -417,4 +349,65 @@ AVANT‑GARDE — CONCEPTUALISM
 4. If a value cannot be inferred with reasonable certainty, output:
   – `null`   for scalars,  
   – `[]`     for lists. 
+'''
+
+
+'''
+Safari
+Colonial-inspired style: shirt-dresses, jackets with patch pockets, belts, natural fabrics (cotton, linen), earthy palette (khaki, beige, sand). Functional and natural.
+
+Military
+Military aesthetic: camouflage, epaulettes, brass buttons, coats, parkas. Color scheme: olive, khaki, navy, grey. Stricter and more utilitarian than Safari.
+
+Marine
+Nautical style: striped shirts, pea coats, double-breasted blazers, white-blue-red palette, gold buttons. Light and maritime, unlike the harsher Military.
+
+Drama
+Theatrical, statement-making style. Armor-like silhouettes (broad shoulders, cinched waist), asymmetry, draping, leather, vinyl, sequins, metallic fabrics, spikes, chains. Dominant black with bright accents. Aimed at provocation, luxury, and sexuality.
+
+Romantic
+Soft and tender style. Light fabrics (silk, chiffon), pastel palette, ruffles, bows, floral prints. Creates airy and dreamy femininity. Unlike Drama, it is gentle rather than aggressive.
+
+Feminine
+Womanly style emphasizing body shape. Dresses, skirts, heels, waist-accented cuts, soft lines. Can be casual or festive. Less “fairy-like” than Romantic, more focused on sensuality.
+
+Jockey
+Equestrian style. Riding boots, slim pants (jodhpurs), tailored jackets, leather belts, gloves. Typical colors: black, brown, white, burgundy. Defined by horse-riding aesthetics.
+
+Dandy
+Masculine-inspired chic in women’s fashion: tailored suits, waistcoats, ties, bowler hats. Neutral palette, suiting fabrics. Stresses polished, masculine elegance.
+
+Retro
+Looks inspired by past decades (20s–80s). Examples: flared skirts, 60s mini dresses, 80s shoulder-padded blazers. Defined by historical reference.
+
+Ethnic
+National-inspired style: embroidery, tribal or folk ornaments, traditional fabrics. Strong link to a specific cultural heritage (African, Asian, Slavic, etc.).
+
+Boho
+Bohemian eclectic style: loose silhouettes, layering, natural fabrics, fringe, lace, oversized shapes, mixed prints. Relaxed and artistic.
+
+Avant-garde (minimalism)
+Pure forms and reduced decoration. Monochrome, strict lines, restrained shapes. Focus on form itself. Cold intellectual minimalism.
+
+Avant-garde (de-constructivism)
+Deconstructed fashion: asymmetry, raw edges, unfinished seams, unconventional garment structure. Garments appear “taken apart and reassembled.” Breaks form deliberately.
+
+Avant-garde (conceptualism)
+Fashion as artistic statement. Uses unusual materials, symbols, or text. Often impractical, prioritizing concept over wearability.
+
+Classic
+Formal representative style tied to diplomatic and protocol dress codes. Features strict tailoring, covered silhouettes, neutral palette (navy, grey, black, beige), minimal jewelry (pearls, discreet watches). Conveys reliability, modesty, and authority.
+
+Business-best
+Modern conservative business style (successor of Classic). Used in finance, law, banking, government. Based on suits (trousers or skirt with jacket), muted or monochrome colors, discreet prints (pinstripe, check, houndstooth). Must look modern in cut and fabric.
+
+Business-casual
+Relaxed business style: combines formal elements (blazer, trousers) with softer ones (cardigan, blouse, flat shoes). Allows individuality while maintaining professionalism. Broader color and cut options than business-best.
+
+Smart-casual
+“Smart everyday” style balancing comfort and neatness. Includes blazers, dark jeans, minimalist dresses, neat shirts. Works both for offices without dress code and daily wear.
+
+Casual (base)
+Basic everyday style: jeans, t-shirts, sweatshirts, sneakers, simple jackets. Focus on comfort, practicality, and simplicity.
+
 '''
