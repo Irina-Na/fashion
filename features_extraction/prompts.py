@@ -222,8 +222,21 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
     },
 }
 
-class MetaCategory(BaseModel):   
-    meta_categoty: str = Field(..., description=f"any of {TEMPLATES.keys}")
+class CategoryType(BaseModel):   
+    category: str
+
+class MetaCategory(BaseModel):
+    """Schema for meta-category classification."""
+    category: str
+    confidence: float = Field(..., ge=0, le=1, description="Confidence level for the classification")
+
+META_CATEGORY_DETECTION_PROMPT  = f'''
+You are a fashion-attribute extractor.  
+### Instructions:
+1. Classify the description of the item into one of the categories below:  'top', 'bottom', 'fullbody', 'outerwear', 'shoes', 'bag', 'accessories'.
+Where top is upper-body garments designed to be worn as the primary visible layer — directly on skin or over a base piece (shirt, blouse, vests, sweater) — excluding havy outerwear (coat, down jacket, etc.).
+2. Provide confidence level from 0.0 to 1.0 based on how certain you are about the classification
+'''
 
 
 # NOTE: Replace placeholders {…} with actual strings or variables containing the relevant
