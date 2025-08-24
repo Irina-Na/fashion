@@ -20,97 +20,100 @@ ColorHSL = conlist(conint(ge=0, le=360), min_length=3, max_length=3)
 # ────────────────────────────────────────────────────────────────────────────────
 # Pydantic models (one per meta‑category)
 # ────────────────────────────────────────────────────────────────────────────────
+class Style(BaseModel):
+    base: bool
+    style: List[str]
 
 class TopItem(BaseModel):
     """Attributes for upper‑body garments (shirts, blouses, sweaters, etc.)."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    #length: str = None         # cropped | waist | hip
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
-    сonstruction: List[str] = Field(default_factory=list) 
-    style: List[str] = Field(default_factory=list) 
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    #length: str         # cropped | waist | hip
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
+    сonstruction: List[str] 
+    style: Style 
     confidence: float = Field(..., ge=0, le=1)
 
 
 class BottomItem(BaseModel):
     """Attributes for lower‑body garments (trousers, skirts, shorts)."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
-    сonstruction: List[str] = Field(default_factory=list)
-    length: str = None         # mini | midi | maxi 
-    waist_fit: str = None          # high, standart, low
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
+    сonstruction: List[str]
+    length: str         # mini | midi | maxi 
+    waist_fit: str          # high, standart, low
     garment_type: str  = Field(..., description="e.g. skinny, palazzo, pencil, A‑line")
-    style: List[str] = Field(default_factory=list) 
+    style: Style 
     confidence: float = Field(..., ge=0, le=1)
 
 
 class FullBodyItem(BaseModel):
     """Attributes for dresses, jumpsuits, overalls — single full‑body pieces."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
-    сonstruction: List[str] = Field(default_factory=list)
-    length: str = None         # mini | midi | maxi 
-    waist_fit: str = None          # high, standart, low
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
+    сonstruction: List[str]
+    length: str         # mini | midi | maxi 
+    waist_fit: str          # high, standart, low
     garment_type: str  = Field(..., description="e.g. A‑silhouette")
-    style: List[str] = Field(default_factory=list) 
+    style: Style
     confidence: float = Field(..., ge=0, le=1)
 
 class OuterwearItem(BaseModel):
     """Attributes for coats, jackets, parkas — garments worn over main outfit."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
-    сonstruction: List[str] = Field(default_factory=list)
-    length: str = None         # mini | midi | maxi 
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
+    сonstruction: List[str]
+    length: str         # mini | midi | maxi 
     garment_type: str  = Field(..., description=" e.g. A‑silhouette")
-    style: List[str] = Field(default_factory=list) 
+    style: Style
     confidence: float = Field(..., ge=0, le=1)
 
 
 class ShoesItem(BaseModel):
     """Attributes for footwear."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
     garment_type: str  = Field(..., description="flat, midle heel, high heel, platform")
-    style: List[str] = Field(default_factory=list) 
+    style: Style
     confidence: float = Field(..., ge=0, le=1)
 
 
@@ -118,32 +121,32 @@ class ShoesItem(BaseModel):
 class BagItem(BaseModel):
     """Attributes for bags, backpacks, clutches."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
-    style: List[str] = Field(default_factory=list) 
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
+    style: Style
     confidence: float = Field(..., ge=0, le=1)
 
 
 class AccessoryItem(BaseModel):
     """Attributes for miscellaneous accessories: belts, hats, jewelry, scarves, etc."""
     category: str
-    sex: str = None            # f | m | u
-    season: str = None         # summer | demi | winter
-    fit: str = None            # fitted | semi‑fitted | oversize
-    fabric: List[str] = Field(default_factory=list)
-    material: List[str] = Field(default_factory=list)
-    color_hsl: ColorHSL = None
-    color_temperature: str = None
-    color_tone: str = None
-    pattern: List[str] = Field(default_factory=list)
-    style: List[str] = Field(default_factory=list) 
+    sex: str            # f | m | u
+    season: str         # summer | demi | winter
+    fit: str            # fitted | semi‑fitted | oversize
+    fabric: List[str]
+    material: List[str]
+    color_hsl: ColorHSL
+    color_temperature: str
+    color_tone: str
+    pattern: List[str]
+    style: Style
     confidence: float = Field(..., ge=0, le=1)
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -222,6 +225,7 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
     },
 }
 
+
 class CategoryType(BaseModel):   
     category: str
 
@@ -235,18 +239,19 @@ You are a fashion-attribute extractor.
 ### Instructions:
 1. Classify the description of the item into one of the categories below:  'top', 'bottom', 'fullbody', 'outerwear', 'shoes', 'bag', 'accessories'.
 Where top is upper-body garments designed to be worn as the primary visible layer — directly on skin or over a base piece (shirt, blouse, vests, sweater) — excluding havy outerwear (coat, down jacket, etc.).
-2. Provide confidence level from 0.0 to 1.0 based on how certain you are about the classification
+Fullbody - dress, suit, jumpsuit, etc.
+2. Provide confidence level from 0.0 to 1.0 based on how certain you are about the classification.
 '''
 
 
 # NOTE: Replace placeholders {…} with actual strings or variables containing the relevant
 # enum lists and few‑shot examples before using `TEMPLATES` in production code.
 
-GENERAL_PROMPT  = '''
+GENERAL_PROMPT  = f'''
 You are a fashion-attribute extractor.
 
 ### Global rules. 
-• `sex` → `f` | `m` | `u`  (female, male, unisex).  
+• `sex` → `f` | `m` | `u` (female, male, unisex).  
 • `season`  → `summer` | `demi` | `winter`.
 • `fit` → `fitted` | `semi-fitted` | `oversized`.
 • `waist_fit` → `high`, `standart`, `low`.
@@ -290,78 +295,55 @@ You are a fashion-attribute extractor.
 • `сonstruction` one or a list of the following options: `simple` | `minimalistic` | `complex` | `pleats` | `draping` | `cut-outs` | `slits`.
 • `material`  one or a list of the following options: `matte` | `semi-matte` | `shiny` | `rigid` | `structured` | `cozy` | `draping` | `thin` | `voluminous` | `textured` | `neutral-texture` | `unusual` | `high-tech`.
 • `confidence` is a float **0–1** (0.75 = medium-sure).
-• `style` one or a list of the following options: classic, bussiness-best, bussiness-casual, smart-casual, casual(base),  safari, military, marine, drama, romantic, feminine, jockey, dandy, retro, entic (boho), avant-garde.
-Instruction: For each garment description or image, assign every style whose criteria it meets. A match requires at least three of the listed criteria (silhouette, materials, colours/prints, unique markers). A single garment can carry multiple labels.
-
-**Safari**  
+• `base` - bool, is the garment basic? A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex asymmetry, or designer “tricks”);
+garments that qualify as basic = those with a straightforward cut. Surface: the shape is simple, but the surface can be interesting (fabric, texture, or color) so it shouln’t look boring. The surface may include texture or prints, but without complicating decorative details.
+• `style` - one or a list of the following options. Assign every style whose criteria it meets. A single garment can carry multiple labels:
+**safari**  
 Natural fabrics (cotton, linen), sandy, khaki, olive tones. Pockets, belts, lacing, metal fittings. Functional with expedition character.
-
-**Military**  
+**military**  
 Strict silhouettes, uniform-like cuts, protective fabrics, khaki tones, camouflage, epaulettes, brass buttons. Military uniform attributes in civil fashion.
-
-**Marine**  
+**marine**  
 Nautical theme: stripes, white-blue-red palette, sailor collars, telnyashka, golden buttons. Light fabrics for summer leisure, accent on freshness and “yachting chic”.
-
-**Drama**  
+**drama**  
 Theatrical effect, sexuality, aggression and luxury. Leather, latex, sequins, deep cuts, asymmetry, drapery. Black and jewel tones. “Wow-factor” items.
-
-**Romantic**  
+**romantic**  
 Soft lines, light fabrics (silk, chiffon, lace), pastel tones, floral prints. Ruffles, bows, flounces. Silhouettes emphasize tenderness and refinement.
-
-**Feminine**  
+**feminine**  
 Emphasizes figure (fitted silhouettes, skirts, dresses), soft fabrics, elegant accessories. Palette from pastels to saturated, but always graceful.
-
-**Jockey**  
+**jockey**  
 Equestrian-inspired: riding boots, breeches, slim trousers, vests, redingote jackets, leather gloves, jockey caps. Colors — cognac, black, burgundy.
-
-**Dandy**  
+**dandy**  
 Men’s wardrobe with refined irony: perfectly tailored suits, waistcoats, ties, canes, hats. Luxurious fabrics, sometimes with vintage touch. Palette ranges from classic to bold accents.
-
-**Retro**  
+**retro**  
 Clothing referencing past decades (20s, 50s, 70s). Characteristic silhouettes, prints, fabrics: pleats, flares, polka dots, vinyl, tweed.
-
-**Ethnic**  
+**ethnic**  
 National motifs: embroidery, ornaments, ethnic prints, folk fabrics (wool, linen, cotton). Loose silhouettes, amulet-like accessories.
-
-**Boho**  
+**boho**  
 Freedom and layering: long skirts, loose dresses, vests, fringe, ethnic jewelry. Natural fabrics, warm earthy tones, mixed patterns. More bohemian than ethnic.
-
-**Avant-garde (minimalism)**  
-Maximum simplicity and “silence”: clear geometric silhouettes, monochrome, no decor. Focus on form, proportions and fabric texture.
-
-**Avant-garde (de-constructivism)**  
-Deliberate asymmetry, “broken” lines, inside-out seams, torn/reassembled elements. Experimental reinterpretation of clothing.
-
-**Avant-garde (conceptualism)**  
-Clothing as idea or manifesto. May be sculptural or theatrical, not necessarily wearable. Unusual materials and forms; concept more important than practicality.
-
-**Classic**  
-Strict protocol clothing for officials: suit sets, closed dresses, calm palette (navy, grey, black, beige), minimal jewelry. Purpose — reliability and restraint, not fashion. timeless “reliable uniform”. Very rare. Qween family, etc.
-
-**Business-best**  
-Modern version of classic for conservative professions (diplomats, bankers, lawyers). Strict suits, restrained colors (navy, grey, burgundy, emerald), small checks or stripes allowed. Contemporary cuts without extremes. Goal — status and trust.
-
-**Business-casual**  
-Less strict business style: blazers, trousers, pencil skirts, blouses, soft suit fabrics. Neutral with muted accents. Allows modern silhouettes, textures and accessories. Professional but not rigid.
+**minimalism**  
+Avant-garde style. Maximum simplicity and “silence”: clear geometric silhouettes, monochrome, no decor. Focus on form, proportions and fabric texture.
+**de-constructivism**  
+Avant-garde style. Deliberate asymmetry, “broken” lines, inside-out seams, torn/reassembled elements. Experimental reinterpretation of clothing.
+**conceptualism**  
+Avant-garde style. Clothing as idea or manifesto. May be sculptural or theatrical, not necessarily wearable. Unusual materials and forms; concept more important than practicality.
+**classic**  
+Casual style, but strict protocol clothing for officials: suit sets, closed dresses, calm palette (navy, grey, black, beige), minimal jewelry. Purpose — reliability and restraint, not fashion. timeless “reliable uniform”. Very rare. Qween family, etc.
+**business-best**  
+Casual style, but Modern version of classic for conservative professions (diplomats, bankers, lawyers). Strict suits, restrained colors (navy, grey, burgundy, emerald), small checks or stripes allowed. Contemporary cuts without extremes. Goal — status and trust.
+**business-casual**  
+Casual style, but Less strict business style: blazers, trousers, pencil skirts, blouses, soft suit fabrics. Neutral with muted accents. Allows modern silhouettes, textures and accessories. Professional but not rigid.
 Common in conservative industries focused on money and reputation: finance, law, pharmaceuticals. Usually explicitly prescribed and followed at all levels, especially by employees with representative functions — the “face of the company.” Modern cuts combined with a system of restrictions: clothing should minimize fuss, inspire trust, and convey stability and reliability — not flashy success, but steady professionalism.
-
-**Smart-casual**  Appropriate for both conservative and creative professions without a strict dress code. Balances fashion, chic, and individuality, allowing more freedom of self-expression while keeping a polished look.
+**smart-casual**  
+Casual style, but Appropriate for both conservative and creative professions without a strict dress code. Balances fashion, chic, and individuality, allowing more freedom of self-expression while keeping a polished look.
 Relaxed business style with casual elements: blazer + jeans, shirt + chinos, simple dresses. Items combine comfort and respectability. Wider palette than business-casual but without excess.
-
-**Casual (base)**  
-Everyday basic style. City casual = BASE — Basic items that do not belong to any specific style.
-A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex asymmetry, or designer “tricks”);
-garments that qualify as basic = those with a straightforward cut.
-Surface: the shape is simple, but the surface can be interesting (fabric, texture, or color) so it doesn’t look boring. The surface may include texture or prints, but without complicating decorative details.
-"""
+**city-casual**  
+Everyday basic casual clothes: jeans, t-shirts, sweatshirts, sneakers. Focus on comfort, practicality, and simplicity.
 
 ### Instructions
-1. Use **only** the exact enum values listed above, exclude fabric.
+1. Use **only** the exact enum values listed above.
 2. Never invent new keys; every key must exist in the provided schema.  
 3. Language of input may be Russian or English; output enums are **always English**. 
-4. If a value cannot be inferred with reasonable certainty, output:
-  – `null`   for scalars,  
-  – `[]`     for lists. 
+4. Analyze the image of the following: *NAME*
 '''
 
 
@@ -422,5 +404,4 @@ Smart-casual
 
 Casual (base)
 Basic everyday style: jeans, t-shirts, sweatshirts, sneakers, simple jackets. Focus on comfort, practicality, and simplicity.
-
 '''
