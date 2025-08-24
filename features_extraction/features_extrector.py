@@ -21,8 +21,10 @@ from typing import Dict, Any
 import math
 import pandas as pd
 from tqdm import tqdm
-from openai import OpenAI, APIConnectionError, BadRequestError, RateLimitError, APIError
+from openai import OpenAI, APIConnectionError, BadRequestError, RateLimitError, APIError, BadRequestError
 import httpx, time, uuid
+import base64, tempfile
+
 
 
 # ---------- 0. settings ----------
@@ -90,34 +92,91 @@ def _with_retry(call, tries=6, base_delay=0.5):
                 raise
             time.sleep(base_delay * (2 ** (attempt - 1)))
 
-def infer_item_from_image(img_url: str, description:str, meta: str, model: str) -> dict[str, Any]:
+def to_base64(url: str) -> str:
+    resp = requests.get(url, timeout=15)          # download on your side
+    resp.raise_for_status()
+    return base64.b64encode(resp.content).decode()
+
+def fetch_as_data_url(img_url: str, timeout=15) -> str:
+    headers = {
+        "User-Agent": "Mozilla/5.0",           # некоторые CDN режут «ботов»
+        "Referer": img_url.rsplit("/", 1)[0],  # помогает против hotlink-защиты
+        "Accept": "image/avif,image/webp,image/*,*/*;q=0.8",
+    }
+    r = requests.get(img_url, timeout=timeout, headers=headers)
+    r.raise_for_status()
+    mime = r.headers.get("content-type", "image/jpeg")
+    b64 = base64.b64encode(r.content).decode("ascii")
+    return f"data:{mime};base64,{b64}"
+
+
+def infer_item_from_image_file(b64:str, meta: str, model: str, name: str) -> dict[str, Any]:
+    tpl = TEMPLATES[meta]
+    resp = client.responses.parse(
+        model=model,
+        input=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "input_text", "text": GENERAL_PROMPT.replace('*NAME*', name)},
+                    {"type": "input_image", "image_base64": b64},
+                ],
+            }
+        ],
+        text_format=tpl["class"],
+        temperature=0,
+    )
+    return resp.output[0].content[0].parsed
+
+def infer_item_from_image(img_url: str, description: str, meta: str, model: str) -> dict[str, Any]:
     tpl = TEMPLATES[meta]
     content = [
-        {"type": "text", "text": description},
         {"type": "image_url", "image_url": {"url": img_url}},  # Chat Completions синтаксис
     ]
+    try:
+        do = lambda: client.with_options(
+            max_retries=5,            # поддерживается
+            timeout=120.0,            # поддерживается
+        ).beta.chat.completions.parse(
+            model=model,
+            messages=[
+                {"role": "system", "content": GENERAL_PROMPT.replace('*NAME*', description)},
+                {"role": "user", "content": content},
+            ],
+            response_format=tpl["class"],  # Pydantic-модель
+            # temperature НЕ передавать для reasoning-моделей вроде gpt-5
+            max_completion_tokens=15000,
 
-    do = lambda: client.with_options(
-        max_retries=5,            # поддерживается
-        timeout=120.0,            # поддерживается
-    ).beta.chat.completions.parse(
-        model=model,
-        messages=[
-            {"role": "system", "content": GENERAL_PROMPT},
-            {"role": "user", "content": content},
-        ],
-        response_format=tpl["class"],  # Pydantic-модель
-        # temperature НЕ передавать для reasoning-моделей вроде gpt-5
-        max_completion_tokens=15000,
+            # <-- если нужно добавить нестандартный заголовок (например, для прокси),
+            # делай это здесь, а не в with_options:
+            extra_headers={"X-Request-ID": str(uuid.uuid4())},
+            # есть также extra_query / extra_body
+        )
+        resp = _with_retry(do)
+    except BadRequestError as e:
+        #b64 = to_base64(img_url)
+        #return infer_item_from_image_file(b64, meta, model, description)
+    
+    #return resp.choices[0].message.parsed.model_dump()
 
-        # <-- если нужно добавить нестандартный заголовок (например, для прокси),
-        # делай это здесь, а не в with_options:
-        extra_headers={"X-Request-ID": str(uuid.uuid4())},
-        # есть также extra_query / extra_body
-    )
-
-    resp = _with_retry(do)
-    return resp.choices[0].message.parsed.model_dump()
+        # 2) Если ошибка вида invalid_image_url / timeout — фолбэк на data URL + Responses API
+        msg = str(getattr(e, "message", e))
+        if "invalid_image_url" in msg or "Timeout while downloading" in msg:
+            data_url = fetch_as_data_url(img_url)
+            resp2 = client.responses.parse(
+                model=model,
+                input=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text",  "text": GENERAL_PROMPT.replace("{NAME}", description)},
+                        {"type": "input_image", "image_url": data_url},
+                    ],
+                }],
+                text_format=tpl["class"],
+            )
+            return resp2.output_parsed.model_dump()
+        # 3) Иначе пробрасываем
+        raise
 
 
 def is_image_accessible(url: str, timeout: float = 5.0) -> bool:
@@ -204,7 +263,7 @@ def enrich_csv_from_images(csv_in: str, model: str, csv_out: str) -> None:
         if meta not in TEMPLATES:
             print(f"[warn] Unknown meta '{meta}', skipping {len(group)} rows")
             continue
-        if meta != 'bag':
+        if meta != 'fullbody':
             pass
         else:
             print(f"➡ Processing {len(group)} items of meta '{meta}' …")
@@ -220,7 +279,7 @@ def enrich_csv_from_images(csv_in: str, model: str, csv_out: str) -> None:
                 records.append(item)
 
     df_rec = pd.DataFrame(records)
-    df_rec.to_csv(DATA_DIR / "extracted_products_from_images_bags.csv", index=False)
+    df_rec.to_csv(DATA_DIR / "extracted_products_from_images_fullbody.csv", index=False)
     df_enriched = df.merge(df_rec, on="good_id", how="left")
     df_enriched.to_csv(csv_out, index=False)
     print(f"✅ Saved → {csv_out}  (rows: {len(df_rec)})")
