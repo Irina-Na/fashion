@@ -20,133 +20,159 @@ ColorHSL = conlist(conint(ge=0, le=360), min_length=3, max_length=3)
 # ────────────────────────────────────────────────────────────────────────────────
 # Pydantic models (one per meta‑category)
 # ────────────────────────────────────────────────────────────────────────────────
-class Style(BaseModel):
-    base: bool
-    style: List[str]
 
 class TopItem(BaseModel):
     """Attributes for upper‑body garments (shirts, blouses, sweaters, etc.)."""
     category: str
-    sex: str            # f | m | u
-    season: str         # summer | demi | winter
     fit: str            # fitted | semi‑fitted | oversize
-    #length: str         # cropped | waist | hip
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
+    neckline: List[str] = Field(..., description="shape and depth")
+    collar: Optional[str] = Field(..., description="shape and height")
+    closure: Optional[str]
+    pockets: str
+    top_length: str = Field(..., description= "crop | reg | long | tunic | ext")
+    model_construction: List[str]
+    sex: str            # f | m | u
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    сonstruction: List[str] 
-    style: Style 
+    color_hsl: list[ColorHSL]
+    fabric: List[str]
+    surfase: str
+    textured_surface_type: Optional[str]
+    cut_features: List[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str] 
     confidence: float = Field(..., ge=0, le=1)
-
 
 class BottomItem(BaseModel):
     """Attributes for lower‑body garments (trousers, skirts, shorts)."""
     category: str
-    sex: str            # f | m | u
-    season: str         # summer | demi | winter
     fit: str            # fitted | semi‑fitted | oversize
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    waistline: str = Field(..., description="high, mid, low")
+    waistband: str
+    pockets: str
+    length: str
+    model_construction: List[str]
+    sex: str            # f | m | u
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    сonstruction: List[str]
-    length: str         # mini | midi | maxi 
-    waist_fit: str          # high, standart, low
-    garment_type: str  = Field(..., description="e.g. skinny, palazzo, pencil, A‑line")
-    style: Style 
+    color_hsl: list[ColorHSL]
+    fabric: List[str]
+    surfase: str
+    textured_surface_type: Optional[str]
+    cut_features: List[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str] 
     confidence: float = Field(..., ge=0, le=1)
 
 
 class FullBodyItem(BaseModel):
     """Attributes for dresses, jumpsuits, overalls — single full‑body pieces."""
     category: str
-    sex: str            # f | m | u
-    season: str         # summer | demi | winter
     fit: str            # fitted | semi‑fitted | oversize
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
+    neckline: List[str] = Field(..., description="shape and depth")
+    collar: Optional[str] = Field(..., description="shape and height")
+    waistline: str = Field(..., description="high, mid, low, no-defined")
+    waistband: str
+    pockets: str 
+    length: str         # mini | midi | maxi 
+    model_construction: List[str]
+    sex: str            # f | m | u
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    сonstruction: List[str]
-    length: str         # mini | midi | maxi 
-    waist_fit: str          # high, standart, low
-    garment_type: str  = Field(..., description="e.g. A‑silhouette")
-    style: Style
+    color_hsl: list[ColorHSL]
+    fabric: List[str]
+    surfase: str
+    textured_surface_type: Optional[str]
+    cut_features: List[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str]
     confidence: float = Field(..., ge=0, le=1)
 
 class OuterwearItem(BaseModel):
     """Attributes for coats, jackets, parkas — garments worn over main outfit."""
     category: str
-    sex: str            # f | m | u
-    season: str         # summer | demi | winter
     fit: str            # fitted | semi‑fitted | oversize
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
+    collar: str = Field(..., description="shape and height")
+    waistline: Optional[str] = Field(..., description="high, mid, low, no-defined")
+    closure: Optional[str] 
+    pockets: str 
+    length: str         # mini | midi | maxi 
+    model_construction: List[str]
+    sex: str            # f | m | u
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    сonstruction: List[str]
-    length: str         # mini | midi | maxi 
-    garment_type: str  = Field(..., description=" e.g. A‑silhouette")
-    style: Style
+    color_hsl: list[ColorHSL]
+    fabric: List[str]
+    surfase: str
+    textured_surface_type: Optional[str]
+    cut_features: List[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str]
     confidence: float = Field(..., ge=0, le=1)
 
 
 class ShoesItem(BaseModel):
     """Attributes for footwear."""
     category: str
+    sole_profile: str  = Field(..., description="flat, heel, tankette, platform, high heel")
+    shank_height: str  = Field(..., description="hight, middle, low")
+    model_construction: List[str]
     sex: str            # f | m | u
-    season: str         # summer | demi | winter
-    fit: str            # fitted | semi‑fitted | oversize
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    garment_type: str  = Field(..., description="flat, midle heel, high heel, platform")
-    style: Style
+    color_hsl: list[ColorHSL]
+    fabric: List[str]
+    surfase: str
+    textured_surface_type: Optional[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str]
     confidence: float = Field(..., ge=0, le=1)
-
 
 
 class BagItem(BaseModel):
     """Attributes for bags, backpacks, clutches."""
     category: str
+    model_construction: List[str]
     sex: str            # f | m | u
-    season: str         # summer | demi | winter
-    fit: str            # fitted | semi‑fitted | oversize
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    style: Style
+    color_hsl: list[ColorHSL]
+    fabric: List[str]
+    surfase: str
+    textured_surface_type: Optional[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str]
     confidence: float = Field(..., ge=0, le=1)
 
 
 class AccessoryItem(BaseModel):
     """Attributes for miscellaneous accessories: belts, hats, jewelry, scarves, etc."""
     category: str
+    model_construction: List[str]
     sex: str            # f | m | u
-    season: str         # summer | demi | winter
-    fit: str            # fitted | semi‑fitted | oversize
-    fabric: List[str]
-    material: List[str]
-    color_hsl: ColorHSL
+    pattern: str
     color_temperature: str
     color_tone: str
-    pattern: List[str]
-    style: Style
+    color_hsl: list[ColorHSL]
+    material: List[str]
+    season: str         # summer | demi | winter
+    base: bool
+    style: List[str]
     confidence: float = Field(..., ge=0, le=1)
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -158,70 +184,50 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "schema": TopItem.model_json_schema(),
         "class": TopItem,
         "model": "gpt-4.1-mini",
-        "enum_blocks": "\n".join([  
-             "• `length` → cropped, waist, hip",
-            "• `fit` → fitted, semi-fitted, oversize.",
-        ]),
-        "fewshots": "{TOP_FEWSHOTS}",
-    },
+        "fewshots_categories": "(e.g. polo, shirt, tee, top, tank top, blazer, etc.)",
+        "fewshots_silhouette": "(e.g. for top: crop top, halter top, tube top; for tank top - None)",
+    }, 
     "bottom": {
         "schema": BottomItem.model_json_schema(),
         "class": BottomItem,
-        "model": "gpt-4.1-mini",
-        "enum_blocks": "\n".join([
-            "• `garment_type`  → ", "{BOTTOM_GARMENT_TYPES_TXT}",
-            "• `length` → mini, midi, maxi",
-            "• `fit` → fitted, semi-fitted, oversize.",
-            "• `waist_fit` → high, standart, low.",
-        ]),
-        "fewshots": "{BOTTOM_FEWSHOTS}",
+        "model": "gpt-4.1-mini", 
+        "fewshots_categories": "(e.g. pants, skirt, jeans, etc.)",   
+        "fewshots_silhouette":"(e.g. for pants and jeans: skinny, palazzo, pencil, straight, etc.)",
     },
     "fullbody": {
         "schema": FullBodyItem.model_json_schema(),
         "class": FullBodyItem,
         "model": "gpt-4.1-mini",
-        "enum_blocks": "\n".join([
-            "• `garment_type`  → ", "{FULLBODY_GARMENT_TYPES_TXT}", 
-            "• `length`  → mini, midi, maxi",
-            "• `fit`  → fitted, semi-fitted, oversize.",
-            "• `waist_fit`  →  high, standart, low.",
-
-        ]),
-        "fewshots": "{FULLBODY_FEWSHOTS}",
+        "fewshots_categories": "(e.g. dress, suit, set, etc.)",
+        "fewshots_silhouette": "(e.g. for dress: straight, cocoon, wrap, etc.)",
     },
     "outwear": {
         "schema": OuterwearItem.model_json_schema(),
         "class": OuterwearItem,
         "model": "gpt-4.1-mini",
-        "enum_blocks": "\n".join([
-            "• `garment_type` → ", "{OUTERWEAR_GARMENT_TYPES_TXT}", 
-            "• `length` → mini, midi, maxi",
-            "• `fit` → fitted, semi-fitted, oversize.",
-        ]),
-        "fewshots": "{OUTERWEAR_FEWSHOTS}",
+        "fewshots_categories": "(e.g. coat, parka, puffer, cape, etc.)",
+        "fewshots_silhouette":"(e.g. for coat: straight, cocoon, wrap, etc.)",
     },
     "shoes": {
         "schema": ShoesItem.model_json_schema(),
         "class": ShoesItem,
         "model": "gpt-4.1-nano",
-        "enum_blocks": "\n".join([
-            "• `garment_type`  →  flat, midle heel, high heel, platform"
-        ]),
-        "fewshots": "{SHOES_FEWSHOTS}",
+        "fewshots_categories": "loafers, sneakers, boots, booties, pumps, flats, sandals",
+        "fewshots_silhouette": "(e.g. for sneakers: sneaker, running, dad-shoes, etc.)",
     },
     "bag": {
         "schema": BagItem.model_json_schema(),
         "class": BagItem,
         "model": "gpt-4.1-nano",
-        "enum_blocks":"",
-        "fewshots": "{BAG_FEWSHOTS}",
+        "fewshots_categories": "(one of: clutch, backpack, crossbody, belt bag, tote, shopper, briefcase)", 
+        "fewshots_silhouette": '',
     },
     "accessorize": {
         "schema": AccessoryItem.model_json_schema(),
         "class": AccessoryItem,
         "model": "gpt-4.1-nano",
-        "enum_blocks": [],
-        "fewshots": "{ACC_FEWSHOTS}",
+        "fewshots_categories": "(e.g. watch, scarf, hat, shawl, tie, bracelet, etc.)",
+        "fewshots_silhouette":'',
     },
 }
 
@@ -238,30 +244,30 @@ META_CATEGORY_DETECTION_PROMPT  = f'''
 You are a fashion-attribute extractor.  
 ### Instructions:
 1. Classify the description of the item into one of the categories below:  'top', 'bottom', 'fullbody', 'outerwear', 'shoes', 'bag', 'accessories'.
-Where top is upper-body garments designed to be worn as the primary visible layer — directly on skin or over a base piece (shirt, blouse, vests, sweater) — excluding havy outerwear (coat, down jacket, etc.).
-Fullbody - dress, suit, jumpsuit, etc.
+Where top is upper-body garments designed to be worn as the primary visible layer — directly on skin or over a base piece (shirt, blouse, vests, sweater) — excluding havy outerwear, that worn over main outfit (coat, down jacket, etc.).
+Fullbody - dress, suit, jumpsuit, set, etc.
 2. Provide confidence level from 0.0 to 1.0 based on how certain you are about the classification.
 '''
 
 
 # NOTE: Replace placeholders {…} with actual strings or variables containing the relevant
 # enum lists and few‑shot examples before using `TEMPLATES` in production code.
+#(female, male, unisex)
 
 GENERAL_PROMPT  = f'''
 You are a fashion-attribute extractor.
 
-### Global rules. 
-• `sex` → `f` | `m` | `u` (female, male, unisex).  
-• `season`  → `summer` | `demi` | `winter`.
+### Global rules.  
+• `category` → top-level product type label used for routing taxonomy and **META_CATEGORY** vocabularies **CATEGORY_EXAMPLES**.
+• `sex` → `f` | `m` | `u`.  Mean: female, male, unisex.
 • `fit` → `fitted` | `semi-fitted` | `oversized`.
-• `waist_fit` → `high`, `standart`, `low`.
 • `length` → `mini`, `midi`, `maxi`.
-• `color_hsl` must be an array `[H, S, L]` of three integers:
-  – `H`  0-360,  `S` 0-100,  `L` 0-100.  
+• `pockets` → one of: `non` or type of poket - e.g. kangaroo, faux, cargo, etc.
+• `pattern` → `no-print` | `colorblock` | `abstract` | `animal` | `watercolor` | `checked` | `striped-horizontal` | `striped-vertical` | `geometric` | `lettering-emblem` | `military` | `polka-dot` | `ethno` | `floral` | `crushed` | `draped` | `pleated`. Visible lines also count as pattern.
 • `color_temperature` →  `warm`| `cold` | `achromatic`. Most colors can be warm or cool, depending on their yellow or blue undertones.
-• `color_tone` → `pastel` | `bright` | `muted` | `dark-shades` | `neutral-palette`.
-• `patterns` → `no-print` | `abstract` | `animal` | `watercolor` | `checked` | `ethno` | `floral` | `geometric` | `lettering-emblem` | `military` | `polka-dot` | `crushed` | `draped` | `pleated`
-(despite what it says about the shape, we will categorize it as a pattern, because having visible lines on the garment is also a pattern that should be taken into account to not overwhelm the look or make it interesting.
+• `color_tone` → `pastel` | `bright` | `muted` | `dark-shades`. Pastel=base+white (light), muted=base+little black, dark-shades=base+much black, bright=pure base color.
+• `color_hsl` must be an array `[H, S, L]` of three integers:
+  – `H`  0-360,  `S` 0-100,  `L` 0-100.  If colorblock pattern, of few colors, list them.
 • `fabric` - use the most appropriate or fill in with your own:
   - angora
   - boucle & tweed
@@ -292,11 +298,18 @@ You are a fashion-attribute extractor.
   - elasticized
   - gabardine
   - satin.
-• `сonstruction` one or a list of the following options: `simple` | `minimalistic` | `complex` | `pleats` | `draping` | `cut-outs` | `slits`.
-• `material`  one or a list of the following options: `matte` | `semi-matte` | `shiny` | `rigid` | `structured` | `cozy` | `draping` | `thin` | `voluminous` | `textured` | `neutral-texture` | `unusual` | `high-tech`.
-• `confidence` is a float **0–1** (0.75 = medium-sure).
-• `base` - bool, is the garment basic? A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex asymmetry, or designer “tricks”);
-garments that qualify as basic = those with a straightforward cut. Surface: the shape is simple, but the surface can be interesting (fabric, texture, or color) so it shouln’t look boring. The surface may include texture or prints, but without complicating decorative details.
+• `surface` - one or a list of the following options:
+**matte** – flat, non-reflective surface.  
+**semi-matte** – flat surface, slightly reflective, soft sheen.  
+**shiny** – flat surface, glossy, light-reflecting finish. 
+**sheer/transparent** - gauzy, airy, see-through surface (e.g., chiffon, organza).
+**textured** - garment have other the Visible or tactile relief with uneven structure.
+• `textured_surface_type` - if `surface = textured`, specify the exact texture (e.g., tweed, boucle, ribbed, crinkled, drapping).
+• `season` → One of: `summer` (only summer wear), `demi` (multi-season), `winter` (only winter wear).
+• `model_construction` → category-specific canonical cut/shape/silhouette label if exist **MODEL_EXAMPLES** or сonstruction features not mentioned above.
+• `cut_features`→ multi-tag field for intentional **patternmaking** and **construction** techniques not mentioned above. Records stable design choices—**shaping**, **openings**, **paneling & seam placement**, **line direction/symmetry**, **edge finishes**, **fastening setup**, **internal supports**—сonstructions features that remain legible in wear and motion.
+• `base` - boolean, is the garment basic? A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex construction, complex asymmetry, or designer “tricks”);
+garments that qualify as basic = those with a straightforward cut. Surface: the shape is simple, but the surface can be interesting (fabric, texture, prints or color), but without complicating decorative details (construction-intensive; many pieces and style lines; advanced shaping/volume (draping, pleating, layering, engineered openings); complex finishes and internal structure.).
 • `style` - one or a list of the following options. Assign every style whose criteria it meets. A single garment can carry multiple labels:
 **safari**  
 Natural fabrics (cotton, linen), sandy, khaki, olive tones. Pockets, belts, lacing, metal fittings. Functional with expedition character.
@@ -338,16 +351,23 @@ Casual style, but Appropriate for both conservative and creative professions wit
 Relaxed business style with casual elements: blazer + jeans, shirt + chinos, simple dresses. Items combine comfort and respectability. Wider palette than business-casual but without excess.
 **city-casual**  
 Everyday basic casual clothes: jeans, t-shirts, sweatshirts, sneakers. Focus on comfort, practicality, and simplicity.
+• `confidence` is a float **0–1** (0.75 = medium-sure).
 
 ### Instructions
-1. Use **only** the exact enum values listed above.
-2. Never invent new keys; every key must exist in the provided schema.  
+1. Use **only** the exact values listed above.
+2. Every key must be fill - choose the closest value. Never leave any value unfilled.  
 3. Language of input may be Russian or English; output enums are **always English**. 
-4. Analyze the image of the following: *NAME*
+4. Analyze the image of the following item description: **NAME**
+5. Trust the image more then description.
 '''
 
 
 '''
+Колорблок!!
+• `cut_features` - any 
+slits, cut-outs, neckline, off-shoulder, raglan, batwing, puffed or bishop sleeves, ruffled, raw-edge, wrap, peplum, empire, a-siluet, etc.
+
+
 Safari
 Colonial-inspired style: shirt-dresses, jackets with patch pockets, belts, natural fabrics (cotton, linen), earthy palette (khaki, beige, sand). Functional and natural.
 
