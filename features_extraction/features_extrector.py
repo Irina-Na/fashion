@@ -21,6 +21,7 @@ from typing import Dict, Any
 import math
 import pandas as pd
 from tqdm import tqdm
+from langfuse.openai import openai
 from openai import OpenAI, APIConnectionError, BadRequestError, RateLimitError, APIError, BadRequestError
 import httpx, time, uuid
 import base64, tempfile
@@ -34,10 +35,30 @@ assert OPENAI_API_KEY, "Set OPENAI_API_KEY env var"
 
 from prompts import GENERAL_PROMPT, TEMPLATES, MetaCategory, META_CATEGORY_DETECTION_PROMPT  # schemas & placeholders filled
 
+from langfuse import Langfuse, observe, get_client
+ 
+@observe()
+def process_request():
+    # Get the client
+    langfuse = get_client()
+ 
+    # Add to the current trace
+    langfuse.update_current_trace(session_id=SESSION_ID, tags=["feature_extraction", "tag-2"])
+ 
+    # ...your processing logic...
+    return 0 #result
+
+langfuse = Langfuse(
+  secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+  public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+  host=os.getenv("LANGFUSE_HOST"),
+)
+
 CACHE_FILE = Path("cache_ids.json")
 CACHE_FILE.touch(exist_ok=True)
 cache_ids: Dict[str, str] = json.loads(CACHE_FILE.read_text() or "{}")
 
+SESSION_ID = str(uuid.uuid4())
 
 # ---------- 1. helpers ---------
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -128,11 +149,19 @@ def infer_item_from_image_file(b64:str, meta: str, model: str, name: str) -> dic
     )
     return resp.output[0].content[0].parsed
 
+
+@observe()    
 def infer_item_from_image(img_url: str, description: str, meta: str, model: str) -> dict[str, Any]:
     tpl = TEMPLATES[meta]
     content = [
         {"type": "image_url", "image_url": {"url": img_url}},  # Chat Completions синтаксис
     ]
+    prompt = GENERAL_PROMPT.replace('**META_CATEGORY**', meta).replace('*NAME*', description).replace('**CATEGORY_EXAMPLES**', tpl['fewshots_categories']).replace('**MODEL_EXAMPLES**', tpl['fewshots_silhouette'])
+    # Get the client
+    langfuse = get_client()
+ 
+    # Add to the current trace
+    langfuse.update_current_trace(session_id=SESSION_ID,  tags=["feature_extraction", meta])
     try:
         do = lambda: client.with_options(
             max_retries=5,            # поддерживается
@@ -140,7 +169,7 @@ def infer_item_from_image(img_url: str, description: str, meta: str, model: str)
         ).beta.chat.completions.parse(
             model=model,
             messages=[
-                {"role": "system", "content": GENERAL_PROMPT.replace('*NAME*', description)},
+                {"role": "system", "content": prompt},
                 {"role": "user", "content": content},
             ],
             response_format=tpl["class"],  # Pydantic-модель
@@ -149,10 +178,11 @@ def infer_item_from_image(img_url: str, description: str, meta: str, model: str)
 
             # <-- если нужно добавить нестандартный заголовок (например, для прокси),
             # делай это здесь, а не в with_options:
-            extra_headers={"X-Request-ID": str(uuid.uuid4())},
+            extra_headers={"X-Request-ID": SESSION_ID},
             # есть также extra_query / extra_body
         )
         resp = _with_retry(do)
+        return resp.choices[0].message.parsed.model_dump()
     except BadRequestError as e:
         #b64 = to_base64(img_url)
         #return infer_item_from_image_file(b64, meta, model, description)
@@ -263,7 +293,7 @@ def enrich_csv_from_images(csv_in: str, model: str, csv_out: str) -> None:
         if meta not in TEMPLATES:
             print(f"[warn] Unknown meta '{meta}', skipping {len(group)} rows")
             continue
-        if meta != 'fullbody':
+        if meta != 'top':
             pass
         else:
             print(f"➡ Processing {len(group)} items of meta '{meta}' …")
@@ -333,5 +363,5 @@ if __name__ == "__main__":
 
     # Example usage (uncomment the desired call):
     # enrich_csv(in_path, "gpt-4.1", out_path_text)
-    enrich_csv_from_images(in_path, "gpt-5", out_path_img)
+    enrich_csv_from_images(in_path, "gpt-5-mini", out_path_img)
     #get_category(csv_in=DATA_DIR / "items_with_meta_small.csv", csv_out=DATA_DIR / "items_with_category.csv", model = 'gpt-4.1-mini') 

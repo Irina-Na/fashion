@@ -11,3 +11,4 @@ pyarrow>=16.1.0          # parquet/feather I/O support
 
 # Data models & validation
 pydantic>=2.7.0          # BaseModel, Field, validation helpers
+langfuse==3.3.0
