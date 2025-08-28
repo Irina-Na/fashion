@@ -21,7 +21,7 @@ ColorHSL = conlist(conint(ge=0, le=360), min_length=3, max_length=3)
 # Pydantic models (one per meta‑category)
 # ────────────────────────────────────────────────────────────────────────────────
 
-class TopItem(BaseModel):
+class UpperBodyItem(BaseModel):
     """Attributes for upper‑body garments (shirts, blouses, sweaters, etc.)."""
     category: str
     fit: str            # fitted | semi‑fitted | oversize
@@ -30,7 +30,7 @@ class TopItem(BaseModel):
     collar: Optional[str] = Field(..., description="shape and height")
     closure: Optional[str]
     pockets: str
-    top_length: str = Field(..., description= "crop | reg | long | tunic | ext")
+    top_length: str = Field(..., description= "`crop`- ribcage level, `reg` - waistline, `long` - hip, `tunic` - cover hip, `ext` - longer.")
     model_construction: List[str]
     sex: str            # f | m | u
     pattern: str
@@ -46,7 +46,7 @@ class TopItem(BaseModel):
     style: List[str] 
     confidence: float = Field(..., ge=0, le=1)
 
-class BottomItem(BaseModel):
+class LowerBodyItem(BaseModel):
     """Attributes for lower‑body garments (trousers, skirts, shorts)."""
     category: str
     fit: str            # fitted | semi‑fitted | oversize
@@ -179,18 +179,25 @@ class AccessoryItem(BaseModel):
 # Templates: per‑meta‑category configuration for LLM calls
 # ────────────────────────────────────────────────────────────────────────────────
 
+# NOTE: Replace placeholders {…} with actual strings or variables containing the relevant
+# enum lists and few‑shot examples before using `TEMPLATES` in production code.
+#(female, male, unisex)
+
+
 TEMPLATES: Dict[str, Dict[str, Any]] = {
     "top": {
-        "schema": TopItem.model_json_schema(),
-        "class": TopItem,
+        "schema": UpperBodyItem.model_json_schema(),
+        "class": UpperBodyItem,
         "model": "gpt-4.1-mini",
+        "metacategory_name": "Upper‑body garments",
         "fewshots_categories": "(e.g. polo, shirt, tee, top, tank top, blazer, etc.)",
         "fewshots_silhouette": "(e.g. for top: crop top, halter top, tube top; for tank top - None)",
     }, 
     "bottom": {
-        "schema": BottomItem.model_json_schema(),
-        "class": BottomItem,
+        "schema": LowerBodyItem.model_json_schema(),
+        "class": LowerBodyItem,
         "model": "gpt-4.1-mini", 
+        "metacategory_name": "Lower‑body garments",
         "fewshots_categories": "(e.g. pants, skirt, jeans, etc.)",   
         "fewshots_silhouette":"(e.g. for pants and jeans: skinny, palazzo, pencil, straight, etc.)",
     },
@@ -198,6 +205,7 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "schema": FullBodyItem.model_json_schema(),
         "class": FullBodyItem,
         "model": "gpt-4.1-mini",
+        "metacategory_name": "FullBody",
         "fewshots_categories": "(e.g. dress, suit, set, etc.)",
         "fewshots_silhouette": "(e.g. for dress: straight, cocoon, wrap, etc.)",
     },
@@ -205,6 +213,7 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "schema": OuterwearItem.model_json_schema(),
         "class": OuterwearItem,
         "model": "gpt-4.1-mini",
+        "metacategory_name": "Outerwear",
         "fewshots_categories": "(e.g. coat, parka, puffer, cape, etc.)",
         "fewshots_silhouette":"(e.g. for coat: straight, cocoon, wrap, etc.)",
     },
@@ -212,13 +221,15 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "schema": ShoesItem.model_json_schema(),
         "class": ShoesItem,
         "model": "gpt-4.1-nano",
-        "fewshots_categories": "loafers, sneakers, boots, booties, pumps, flats, sandals",
-        "fewshots_silhouette": "(e.g. for sneakers: sneaker, running, dad-shoes, etc.)",
+        "metacategory_name": "Footwear",
+        "fewshots_categories": "loafers, sneakers, boots, booties, pumps, ballet, slip-ons, etc.",
+        "fewshots_silhouette": "(e.g. for sneakers: sneaker, running, dad-shoes, etc., for boots: chelsea, combat, biker, etc.)",
     },
     "bag": {
         "schema": BagItem.model_json_schema(),
         "class": BagItem,
         "model": "gpt-4.1-nano",
+        "metacategory_name": "Bags"
         "fewshots_categories": "(one of: clutch, backpack, crossbody, belt bag, tote, shopper, briefcase)", 
         "fewshots_silhouette": '',
     },
@@ -226,6 +237,7 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "schema": AccessoryItem.model_json_schema(),
         "class": AccessoryItem,
         "model": "gpt-4.1-nano",
+        "metacategory_name": "Accessories",
         "fewshots_categories": "(e.g. watch, scarf, hat, shawl, tie, bracelet, etc.)",
         "fewshots_silhouette":'',
     },
@@ -249,19 +261,14 @@ Fullbody - dress, suit, jumpsuit, set, etc.
 2. Provide confidence level from 0.0 to 1.0 based on how certain you are about the classification.
 '''
 
-
-# NOTE: Replace placeholders {…} with actual strings or variables containing the relevant
-# enum lists and few‑shot examples before using `TEMPLATES` in production code.
-#(female, male, unisex)
-
 GENERAL_PROMPT  = f'''
 You are a fashion-attribute extractor.
 
 ### Global rules.  
-• `category` → top-level product type label used for routing taxonomy and **META_CATEGORY** vocabularies **CATEGORY_EXAMPLES**.
+• `category` → top-level product type label used for routing taxonomy and vocabularies of **META_CATEGORY_NAME**: **CATEGORY_EXAMPLES**.
 • `sex` → `f` | `m` | `u`.  Mean: female, male, unisex.
 • `fit` → `fitted` | `semi-fitted` | `oversized`.
-• `length` → `mini`, `midi`, `maxi`.
+• `length` → `mini`, `midi` (from knee to lower calf), `maxi`(at the foot).
 • `pockets` → one of: `non` or type of poket - e.g. kangaroo, faux, cargo, etc.
 • `pattern` → `no-print` | `colorblock` | `abstract` | `animal` | `watercolor` | `checked` | `striped-horizontal` | `striped-vertical` | `geometric` | `lettering-emblem` | `military` | `polka-dot` | `ethno` | `floral` | `crushed` | `draped` | `pleated`. Visible lines also count as pattern.
 • `color_temperature` →  `warm`| `cold` | `achromatic`. Most colors can be warm or cool, depending on their yellow or blue undertones.
@@ -307,7 +314,7 @@ You are a fashion-attribute extractor.
 • `textured_surface_type` - if `surface = textured`, specify the exact texture (e.g., tweed, boucle, ribbed, crinkled, drapping).
 • `season` → One of: `summer` (only summer wear), `demi` (multi-season), `winter` (only winter wear).
 • `model_construction` → category-specific canonical cut/shape/silhouette label if exist **MODEL_EXAMPLES** or сonstruction features not mentioned above.
-• `cut_features`→ multi-tag field for intentional **patternmaking** and **construction** techniques not mentioned above. Records stable design choices—**shaping**, **openings**, **paneling & seam placement**, **line direction/symmetry**, **edge finishes**, **fastening setup**, **internal supports**—сonstructions features that remain legible in wear and motion.
+• `cut_features`→ multi-tag field for **only** not mentioned above intentional **patternmaking** and **construction** techniques. Records stable design choices—**shaping**, **openings**, **paneling & seam placement**, **line direction/symmetry**, **edge finishes**, **fastening setup**, **internal supports**—сonstructions features that remain legible in wear and motion.
 • `base` - boolean, is the garment basic? A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex construction, complex asymmetry, or designer “tricks”);
 garments that qualify as basic = those with a straightforward cut. Surface: the shape is simple, but the surface can be interesting (fabric, texture, prints or color), but without complicating decorative details (construction-intensive; many pieces and style lines; advanced shaping/volume (draping, pleating, layering, engineered openings); complex finishes and internal structure.).
 • `style` - one or a list of the following options. Assign every style whose criteria it meets. A single garment can carry multiple labels:
@@ -354,16 +361,15 @@ Everyday basic casual clothes: jeans, t-shirts, sweatshirts, sneakers. Focus on 
 • `confidence` is a float **0–1** (0.75 = medium-sure).
 
 ### Instructions
-1. Use **only** the exact values listed above.
-2. Every key must be fill - choose the closest value. Never leave any value unfilled.  
-3. Language of input may be Russian or English; output enums are **always English**. 
-4. Analyze the image of the following item description: **NAME**
-5. Trust the image more then description.
+1.Use only the predefined values listed above. No free-text values allowed.
+2.Every field must be filled — always select the closest option, never leave empty.
+3.Input may be in Russian or English; output enums are always English.
+4.Analyze the image of the item described as: *NAME*.
+5.Rely on the image over the text description, but focus strictly on the item specified in the description.
 '''
 
 
 '''
-Колорблок!!
 • `cut_features` - any 
 slits, cut-outs, neckline, off-shoulder, raglan, batwing, puffed or bishop sleeves, ruffled, raw-edge, wrap, peplum, empire, a-siluet, etc.
 

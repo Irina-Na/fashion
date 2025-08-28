@@ -156,7 +156,7 @@ def infer_item_from_image(img_url: str, description: str, meta: str, model: str)
     content = [
         {"type": "image_url", "image_url": {"url": img_url}},  # Chat Completions синтаксис
     ]
-    prompt = GENERAL_PROMPT.replace('**META_CATEGORY**', meta).replace('*NAME*', description).replace('**CATEGORY_EXAMPLES**', tpl['fewshots_categories']).replace('**MODEL_EXAMPLES**', tpl['fewshots_silhouette'])
+    prompt = GENERAL_PROMPT.replace('**META_CATEGORY_NAME**', tpl['metacategory_name']).replace('*NAME*', description).replace('**CATEGORY_EXAMPLES**', tpl['fewshots_categories']).replace('**MODEL_EXAMPLES**', tpl['fewshots_silhouette'])
     # Get the client
     langfuse = get_client()
  
@@ -293,7 +293,7 @@ def enrich_csv_from_images(csv_in: str, model: str, csv_out: str) -> None:
         if meta not in TEMPLATES:
             print(f"[warn] Unknown meta '{meta}', skipping {len(group)} rows")
             continue
-        if meta != 'top':
+        if meta != 'fullbody':
             pass
         else:
             print(f"➡ Processing {len(group)} items of meta '{meta}' …")
