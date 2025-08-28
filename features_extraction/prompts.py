@@ -318,34 +318,36 @@ You are a fashion-attribute extractor.
 • `base` - boolean, is the garment basic? A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex construction, complex asymmetry, or designer “tricks”);
 garments that qualify as basic = those with a straightforward cut. Surface: the shape is simple, but the surface can be interesting (fabric, texture, prints or color), but without complicating decorative details (construction-intensive; many pieces and style lines; advanced shaping/volume (draping, pleating, layering, engineered openings); complex finishes and internal structure.).
 • `style` - one or a list of the following options. Assign every style whose criteria it meets. A single garment can carry multiple labels:
-**safari**  
-Natural fabrics (cotton, linen), sandy, khaki, olive tones. Pockets, belts, lacing, metal fittings. Functional with expedition character.
 **military**  
-Strict silhouettes, uniform-like cuts, protective fabrics, khaki tones, camouflage, epaulettes, brass buttons. Military uniform attributes in civil fashion.
+Uniform roots after WWI, reinforced post-WWII, revived 1970s protest, embedded in 1980s–1990s rock and grunge, remains popular. Structured silhouette, dense fabrics, epaulettes, double-breasted plackets, patch pockets, straps, lacing. Palette: khaki, pistachio, swamp green, navy, grey, black. Details: zippers, matte metal buttons, badges, insignia. Footwear: combat boots, rough utilitarian shoes. Impression: strict, disciplined, utilitarian. Quick ID: khaki field jacket with epaulettes. Contrast with Marine: breezy light forms vs. strict structure.
+**safari**  
+Colonial-inspired style: British uniforms for Africa, transformed by Yves Saint Laurent “Saharienne” dress 1968. Cut close to military: epaulettes, pockets, plackets, but in sand and earth tones—beige, rust, milky white, pistachio, grey. Accessories: African-inspired jewelry, amulets, wide belts, sun hats, silk scarves, jute bags. Frequent animal prints—leopard, snake, zebra—and exotic leathers. Seasonal: warm climate, avoid with heavy winter outerwear. Dual use: vacation resort and city office depending on accessories. Quick ID: utility dress in beige with patch pockets + African jewelry or animal print.
 **marine**  
-Nautical theme: stripes, white-blue-red palette, sailor collars, telnyashka, golden buttons. Light fabrics for summer leisure, accent on freshness and “yachting chic”.
-**drama**  
-Theatrical effect, sexuality, aggression and luxury. Leather, latex, sequins, deep cuts, asymmetry, drapery. Black and jewel tones. “Wow-factor” items.
-**romantic**  
-Soft lines, light fabrics (silk, chiffon, lace), pastel tones, floral prints. Ruffles, bows, flounces. Silhouettes emphasize tenderness and refinement.
-**feminine**  
-Emphasizes figure (fitted silhouettes, skirts, dresses), soft fabrics, elegant accessories. Palette from pastels to saturated, but always graceful.
+Nautical theme: Romance of travel, yacht-club elegance, 1950s cruise mood. Straight or semi-fitted silhouettes, short shorts, cropped banana pants, relaxed V-neck sweaters. Key signs: horizontal stripe 2–3 cm, ropes, anchors, lifebuoys, yacht crests, gold “ship-wheel” buttons, metal eyelets. Core items: sailor stripe top, pea coat, white culottes, 7/8 chinos, silk scarf, topsiders. Accessories: braided rope belts, head scarves, mini drawstring backpack, aviator sunglasses, hoop earrings, simple bracelets. Footwear: topsiders, espadrilles, white sneakers, moccasins. Quick ID: stripe tee + gold buttons.
 **jockey**  
-Equestrian-inspired: riding boots, breeches, slim trousers, vests, redingote jackets, leather gloves, jockey caps. Colors — cognac, black, burgundy.
+Equestrian-inspired: Origin — British aristocracy, rider’s and hunting uniform of the 18th century. Modern wardrobe reference to equestrian attire: aristocratic, “expensive,” noble.
+Palette: natural muted for everyday, light and dressy for competitions — e.g. brown, black, gray, khaki, blue, beige, white, burgundy. Fabrics: natural luxury — cashmere, silk, fine cotton, genuine leather. Allowed straight simple dresses (knit, leather, suede), straight skirts, shorts. Accessories reinforce the DNA: horse, horseshoe, bridle motifs; leather bracelets and belts; cap, fedora, baseball cap; gloves; classic bags; jokey boots! Brand reference — Hermès with equestrian aesthetic.
 **dandy**  
-Men’s wardrobe with refined irony: perfectly tailored suits, waistcoats, ties, canes, hats. Luxurious fabrics, sometimes with vintage touch. Palette ranges from classic to bold accents.
+Dandy style is built on basic pieces styled after menswear. It is not androgyny but emphasized femininity through accentuating and exaggerating masculine elements — sharp shoulders, straight cuts, ties, vests, masculine shoes — to create a bold yet feminine look. Not unisex: the image reads femininity. Not just base: dandy always "exaggerates" masculine elements. Dandies were marked by idle elegance, refined aesthetics, meticulous grooming, and a strict wardrobe. The total look should be laconic but expressive. The mood is sharp, confident, a little ironic, with an undertone of freedom and defiance.
 **retro**  
-Clothing referencing past decades (20s, 50s, 70s). Characteristic silhouettes, prints, fabrics: pleats, flares, polka dots, vinyl, tweed.
-**ethnic**  
-National motifs: embroidery, ornaments, ethnic prints, folk fabrics (wool, linen, cotton). Loose silhouettes, amulet-like accessories.
+Modern clothing styled after past decades (mainly 1920s, 1930s, 1940s, 1950s). Not originality, but recognizable era styling by silhouettes, prints, fabrics.
+**drama**  
+Theatrical effect, wow-factor, sexuality with provocation, luxury with aggression. Focus on power and attention, not comfort. Shape: armor-like silhouettes, sharp shoulders, tight waist, graphic hips, dramatic flare. Materials: leather, eco-leather, vinyl, wool suiting, mesh, lace, sequins, lycra. Decor: spikes, studs, big eyelets, straps, bold zippers, heavy buckles.Accessories: corset belts, chokers, ear cuffs, over-the-knee boots, pointed shoes, second-skin gloves. Colors: black dominates; accents in white, red, emerald, sapphire, gold, silver
+Distinctions from military/safari: drama = glamour and nightlife; military/safari = function and nature. From avant-garde: drama = loud, sensual, rich; avant-garde = quiet, intellectual
+**ethnic(**name of ethnicity**)**  
+National motifs: african, indian, spanish (flamenco), indigenous, cowboy, japanese, chinese, ancient, egyptian, arab, slavic, mexican, etc.
 **boho**  
-Freedom and layering: long skirts, loose dresses, vests, fringe, ethnic jewelry. Natural fabrics, warm earthy tones, mixed patterns. More bohemian than ethnic.
-**minimalism**  
-Avant-garde style. Maximum simplicity and “silence”: clear geometric silhouettes, monochrome, no decor. Focus on form, proportions and fabric texture.
-**de-constructivism**  
-Avant-garde style. Deliberate asymmetry, “broken” lines, inside-out seams, torn/reassembled elements. Experimental reinterpretation of clothing.
+Stems from the bohemian milieu (Romani → French creatives), then ’60s hippie; later, “boho-chic.” Essence: free self-expression, a multicultural mix, an inclusive and diverse vibe. Four pillars: loose silhouettes • layering • mixed prints/textures • ethnic motifs. Silhouette often read oversized and airy-flowing sleeves, ruffled/flounced skirts, tunics, off-shoulder peasant blouses, patchwork-like trousers, kimono, cowboy boots, felt boots, woven sole, gladiators, soft babouches, etc.; natural fibers (cotton, silk, linen, wool) plus corduroy, lace, macramé; suede/leather/fur (often faux) and denim, velvet flared. Texture play-rough with soft, smooth with nubby; embroidery and beads/glass beads; fringe as the clearest tell. Palette: neutrals to brights; prints: florals, paisley, tie-dye, ethnic, patchwork. Jewelry: noticeable, multi-layered, tassels, stones, wood, vintage gold/silver, handmade look.
+**romantic**  
+Naive, girlish, dreamy mood. Colors are pastel, soft, lightened (never black or bright red). Always ruffles, bows, drapery, pleats, layered skirts, bell or baby-doll shapes, tiering, puff/“ram’s horn” sleeves, narrow waist with voluminous skirt, etc. Fabrics are airy and flowing — silk, organza, lace, sometimes feathers or fur. Prints are childlike: flowers, hearts, butterflies, polka dots, cute or cartoon motifs. Creates an image that is tender and naive, not overtly sexual.
+**feminine**  
+Womanly lady-like style, elegance and adult confidence, figure-flattering. Any colors. Complex cut with folds, drapery, waist and hip accents, moderate slits or necklines. Preferred lengths: knee, midi, maxi. Silhouettes fitted or semi-fitted. Prints include floral, watercolor, polka dots, geometry, check. Accessories are lady-like: pumps, sandals, fitted boots, small structured handbags. Jewelry is modern and refined, not retro. Overall image is noble, graceful, attractive without vulgarity, less “fairy-like” than Romantic, more focused on sensuality. Bags/Jewelry: modern refined (avoid retro “granny” vibe).
 **conceptualism**  
-Avant-garde style. Clothing as idea or manifesto. May be sculptural or theatrical, not necessarily wearable. Unusual materials and forms; concept more important than practicality.
+Avant-garde style. Clothing as idea or manifesto. Unusual materials and forms; concept more important than practicality. May be sculptural or theatrical, not necessarily wearable, designed to provoke emotion: e.g Lady Gaga’s meat dress; Met Gala themes, Jeremy Scott’s fast-food looks.
+**de-constructivism**  
+Avant-garde style. About breaking construction: garments appear deliberately “wrong” or unfinished; rules of cut and proportion are disrupted. Key features: asymmetry, distorted proportions, oversized volumes; exposed darts and seams; intentional knee “bubbles”; inside-out finishes; hybrid “Frankenstein” pieces stitched from two garments. Traits extend to accessories. Low focus on sexuality; emphasizes comfort, versatility, creativity. 
+**minimalism**  
+“Simple but not simplistic” — a modern base with a touch of avant-garde. Maximum simplicity and “silence”: pure forms and reduced decoration. А clean cut and at least one avant-garde accent: asymmetry, unusual cutouts/slits, subtle proportion shifts, raw edges, exposed seams, streamlined silhouettes, structured forms, maxi length, architectural lines, color-blocking. Fabrics: wool, knits, suiting, denim, leather; matte or semi-matte, smooth textures, ribbed knits allowed. Palette: neutrals, pastels, brights/neons on simple shapes; monochrome, restrained checks/stripes, geometric motifs; accessories pared-down with twist (e.g.square-toe footwear). Focus on form itself. Cold intellectual minimalism.
 **classic**  
 Casual style, but strict protocol clothing for officials: suit sets, closed dresses, calm palette (navy, grey, black, beige), minimal jewelry. Purpose — reliability and restraint, not fashion. timeless “reliable uniform”. Very rare. Qween family, etc.
 **business-best**  
