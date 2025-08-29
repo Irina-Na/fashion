@@ -23,6 +23,7 @@ ColorHSL = conlist(conint(ge=0, le=360), min_length=3, max_length=3)
 
 class UpperBodyItem(BaseModel):
     """Attributes for upper‑body garments (shirts, blouses, sweaters, etc.)."""
+    consistency_check: str
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
@@ -48,6 +49,7 @@ class UpperBodyItem(BaseModel):
 
 class LowerBodyItem(BaseModel):
     """Attributes for lower‑body garments (trousers, skirts, shorts)."""
+    consistency_check: str
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     waistline: str = Field(..., description="high, mid, low")
@@ -72,6 +74,7 @@ class LowerBodyItem(BaseModel):
 
 class FullBodyItem(BaseModel):
     """Attributes for dresses, jumpsuits, overalls — single full‑body pieces."""
+    consistency_check: str
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
@@ -98,6 +101,7 @@ class FullBodyItem(BaseModel):
 
 class OuterwearItem(BaseModel):
     """Attributes for coats, jackets, parkas — garments worn over main outfit."""
+    consistency_check: str
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
@@ -124,6 +128,7 @@ class OuterwearItem(BaseModel):
 
 class ShoesItem(BaseModel):
     """Attributes for footwear."""
+    consistency_check: str
     category: str
     sole_profile: str  = Field(..., description="flat, heel, tankette, platform, high heel")
     shank_height: str  = Field(..., description="hight, middle, low")
@@ -144,6 +149,7 @@ class ShoesItem(BaseModel):
 
 class BagItem(BaseModel):
     """Attributes for bags, backpacks, clutches."""
+    consistency_check: str
     category: str
     model_construction: List[str]
     sex: str            # f | m | u
@@ -162,6 +168,7 @@ class BagItem(BaseModel):
 
 class AccessoryItem(BaseModel):
     """Attributes for miscellaneous accessories: belts, hats, jewelry, scarves, etc."""
+    consistency_check: str
     category: str
     model_construction: List[str]
     sex: str            # f | m | u
@@ -366,10 +373,11 @@ Everyday basic casual clothes: jeans, t-shirts, sweatshirts, sneakers. Focus on 
 1.Use only the predefined values listed above. No free-text values allowed.
 2.Every field must be filled — always select the closest option, never leave empty.
 3.Input may be in Russian or English; output enums are always English.
-4.Analyze the image of the item described as: *NAME*.
-5.Rely on the image over the text description, but focus strictly on the item specified in the description.
+4. Analyze the description of the item and the image containing it.
+• `consistency_check` → `match` if the image contain the wardrobe item explicitly named in the description. `mismatch` - if the item's attributes differ from the description, `missing` - if missing.
+5. If match - take data from description, add attributes from image.
+6. If missing or mismatch - take category from description, other attributes from image, but only for the described item.
 '''
-
 
 '''
 • `cut_features` - any 

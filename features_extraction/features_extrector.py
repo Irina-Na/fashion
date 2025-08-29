@@ -154,9 +154,10 @@ def infer_item_from_image_file(b64:str, meta: str, model: str, name: str) -> dic
 def infer_item_from_image(img_url: str, description: str, meta: str, model: str) -> dict[str, Any]:
     tpl = TEMPLATES[meta]
     content = [
+        {"type": "text", "text": f"Item description: {description}"},
         {"type": "image_url", "image_url": {"url": img_url}},  # Chat Completions синтаксис
     ]
-    prompt = GENERAL_PROMPT.replace('**META_CATEGORY_NAME**', tpl['metacategory_name']).replace('*NAME*', description).replace('**CATEGORY_EXAMPLES**', tpl['fewshots_categories']).replace('**MODEL_EXAMPLES**', tpl['fewshots_silhouette'])
+    prompt = GENERAL_PROMPT.replace('**META_CATEGORY_NAME**', tpl['metacategory_name']).replace('**CATEGORY_EXAMPLES**', tpl['fewshots_categories']).replace('**MODEL_EXAMPLES**', tpl['fewshots_silhouette'])
     # Get the client
     langfuse = get_client()
  
