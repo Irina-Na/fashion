@@ -176,59 +176,6 @@ def is_image_accessible(url: str, timeout: float = 5.0) -> bool:
     except Exception:
         return False
 
-# ---------- 2. main text‑based enrichment ----------
-def enrich_csv(csv_in: str, model: str, csv_out: str) -> None:
-    """Enrich dataset using item names (text)."""
-    df = pd.read_csv(csv_in)
-    df = df.fillna("")
-    df = df.drop_duplicates(['image_external_url']).drop_duplicates(['good_id', 'store_id'])
-    assert {
-        "name",
-        "meta_category",
-    }.issubset(df.columns), "CSV must have 'name' and 'meta_category' columns"
-
-    records: list[dict[str, Any]] = []
-    row_index = []
-
-    #cache_id = client.caches.create(model=model, content=GENERAL_PROMPT).id
-    
-    # Persist immediately to survive crashes
-    #CACHE_FILE.write_text(json.dumps(cache_id))
-    #time.sleep(0.1)  # gentle rate‑limit
-    
-    # groupby meta for long‑lived prompt cache hit‑rate
-    for meta, group in df.groupby("meta_category", sort=False):
-        if meta not in TEMPLATES:
-            print(f"[warn] Unknown meta '{meta}', skipping {len(group)} rows")
-            continue
-        if meta != 'bag':
-            pass
-        else:
-                   
-            print(f"➡ Processing {len(group)} items of meta '{meta}' …")
-            for row in tqdm(group.itertuples(index=False), total=len(group), leave=False):
-                if isinstance(row.name, float) and math.isnan(row.name):
-                    pass
-                  # or `"<unknown>"` if you prefer
-                else:
-                    name = str(row.name)         # guarantees plain text for the API
-
-                    time.sleep(0.1)  # gentle rate‑limit
-                    item = infer_item(name=name, model=model, prompt=GENERAL_PROMPT, response_format= TEMPLATES[meta]["class"]) #cache_id)
-                    item["good_id"] = row.good_id
-                    records.append(item)
-
-# concat and save
-    df_rec = pd.DataFrame(records) # now join / concat will align exactly to the indexes
-    df_rec.to_csv(DATA_DIR / f"extracted_products_exclude_bags.csv")  
-    # df_enriched = pd.concat([df.reset_index(drop=True), df_rec], axis=1)
-    #df_enriched = df.join(df_rec)         # same as concat([df, df_rec], axis=1)
-    df_enriched = df.merge(df_rec, on="good_id", how="left")
-    df_enriched.to_csv(csv_out, index=False)
-    #print(f"✅ Saved → {csv_out}  (rows: {len(df_enriched)})")
-    #df_rec.to_csv(csv_out)
-    print(f"✅ Saved → {csv_out}  (rows: {len(df_rec)})")
-
 
 # ---------- 3. image‑based enrichment ----------
 def enrich_csv_from_images(csv_in: str, model: str, csv_out: str) -> None:
@@ -267,7 +214,8 @@ def enrich_csv_from_images(csv_in: str, model: str, csv_out: str) -> None:
     df_enriched.to_csv(csv_out, index=False)
     print(f"✅ Saved → {csv_out}  (rows: {len(df_rec)})")
 
-
+# ---------- 2. main text‑based enrichment ----------
+# only metacategory extraction from text
 def get_category(csv_in: str, csv_out: str, model: str = 'gpt-4.1-mini') -> None:
     """Classify items to metacategories by names (text)."""
     df = pd.read_csv(csv_in)
