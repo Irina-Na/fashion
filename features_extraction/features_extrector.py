@@ -83,27 +83,7 @@ def infer_item(name: str, response_format: Any,  model: str, max_completion_toke
         max_completion_tokens=max_completion_tokens,
     )
     return resp.choices[0].message.parsed.model_dump()
-"""
-def infer_item_from_image(image_url: str, description: str, meta: str, model: str) -> dict[str, Any]:
-    tpl = TEMPLATES[meta]
-    resp = client.beta.chat.completions.parse(
-        model=model,
-        messages=[
-            {"role": "system", "content": GENERAL_PROMPT},
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": description},
-                    {"type": "image_url", "image_url": {"url": image_url}}
-                ],
-            },
-        ],
-        response_format=tpl["class"],
-        #temperature=0,
-        max_completion_tokens=15000,
-    )
-    return resp.choices[0].message.parsed.model_dump()
-"""
+
 def _with_retry(call, tries=6, base_delay=0.5):
     for attempt in range(1, tries + 1):
         try:
@@ -113,10 +93,6 @@ def _with_retry(call, tries=6, base_delay=0.5):
                 raise
             time.sleep(base_delay * (2 ** (attempt - 1)))
 
-def to_base64(url: str) -> str:
-    resp = requests.get(url, timeout=15)          # download on your side
-    resp.raise_for_status()
-    return base64.b64encode(resp.content).decode()
 
 def fetch_as_data_url(img_url: str, timeout=15) -> str:
     headers = {
@@ -129,25 +105,6 @@ def fetch_as_data_url(img_url: str, timeout=15) -> str:
     mime = r.headers.get("content-type", "image/jpeg")
     b64 = base64.b64encode(r.content).decode("ascii")
     return f"data:{mime};base64,{b64}"
-
-
-def infer_item_from_image_file(b64:str, meta: str, model: str, name: str) -> dict[str, Any]:
-    tpl = TEMPLATES[meta]
-    resp = client.responses.parse(
-        model=model,
-        input=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "input_text", "text": GENERAL_PROMPT.replace('*NAME*', name)},
-                    {"type": "input_image", "image_base64": b64},
-                ],
-            }
-        ],
-        text_format=tpl["class"],
-        temperature=0,
-    )
-    return resp.output[0].content[0].parsed
 
 
 @observe()    
@@ -185,11 +142,6 @@ def infer_item_from_image(img_url: str, description: str, meta: str, model: str)
         resp = _with_retry(do)
         return resp.choices[0].message.parsed.model_dump()
     except BadRequestError as e:
-        #b64 = to_base64(img_url)
-        #return infer_item_from_image_file(b64, meta, model, description)
-    
-    #return resp.choices[0].message.parsed.model_dump()
-
         # 2) Если ошибка вида invalid_image_url / timeout — фолбэк на data URL + Responses API
         msg = str(getattr(e, "message", e))
         if "invalid_image_url" in msg or "Timeout while downloading" in msg:
