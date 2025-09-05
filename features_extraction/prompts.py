@@ -27,11 +27,12 @@ class UpperBodyItem(BaseModel):
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
+    sleeve: List[str] = Field(..., description="shape and depth")
     neckline: List[str] = Field(..., description="shape and depth")
     collar: Optional[str] = Field(..., description="shape and height")
     closure: Optional[str]
     pockets: str
-    top_length: str = Field(..., description= "`crop`- ribcage level, `reg` - waistline, `long` - hip, `tunic` - cover hip, `ext` - longer.")
+    top_length: str = Field(..., description= "`crop`- ribcage level, `reg` - waistline, `long` - hip, `tunic` - cover hip, `ext` - longer. If assimetric, specify both lengths.")
     model_construction: List[str]
     sex: str            # f | m | u
     pattern: str
@@ -54,6 +55,12 @@ class LowerBodyItem(BaseModel):
     fit: str            # fitted | semi‑fitted | oversize
     waistline: str = Field(..., description="high, mid, low")
     waistband: str
+    inseam: str = Field(..., description="short, mid, long. If assimetric, specify both lengths.")
+    outseam: str = Field(..., description="short, mid, long. If assimetric, specify both lengths.")
+    crotch_height: str 
+    leg_opening: str 
+    leg_shape: str
+    closure: Optional[str]
     pockets: str
     length: str
     model_construction: List[str]
@@ -78,10 +85,12 @@ class FullBodyItem(BaseModel):
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
+    sleeve: List[str] = Field(..., description="shape and depth")
     neckline: List[str] = Field(..., description="shape and depth")
     collar: Optional[str] = Field(..., description="shape and height")
     waistline: str = Field(..., description="high, mid, low, no-defined")
     waistband: str
+    closure: Optional[str]
     pockets: str 
     length: str         # mini | midi | maxi 
     model_construction: List[str]
@@ -105,6 +114,7 @@ class OuterwearItem(BaseModel):
     category: str
     fit: str            # fitted | semi‑fitted | oversize
     sleeve_len: str = Field(..., description="long, 3/4, short, non-sleeve")
+    sleeve: List[str] = Field(..., description="shape and depth")
     collar: str = Field(..., description="shape and height")
     waistline: Optional[str] = Field(..., description="high, mid, low, no-defined")
     closure: Optional[str] 
@@ -132,6 +142,7 @@ class ShoesItem(BaseModel):
     category: str
     sole_profile: str  = Field(..., description="flat, heel, tankette, platform, high heel")
     shank_height: str  = Field(..., description="hight, middle, low")
+    closure: str
     model_construction: List[str]
     sex: str            # f | m | u
     pattern: str
@@ -151,6 +162,7 @@ class BagItem(BaseModel):
     """Attributes for bags, backpacks, clutches."""
     consistency_check: str
     category: str
+    closure: str
     model_construction: List[str]
     sex: str            # f | m | u
     pattern: str
@@ -167,7 +179,7 @@ class BagItem(BaseModel):
 
 
 class AccessoryItem(BaseModel):
-    """Attributes for miscellaneous accessories: belts, hats, jewelry, scarves, etc."""
+    """Attributes for accessories: belts, hats, jewelry, scarves, etc."""
     consistency_check: str
     category: str
     model_construction: List[str]
@@ -236,7 +248,7 @@ TEMPLATES: Dict[str, Dict[str, Any]] = {
         "schema": BagItem.model_json_schema(),
         "class": BagItem,
         "model": "gpt-4.1-nano",
-        "metacategory_name": "Bags"
+        "metacategory_name": "Bags",
         "fewshots_categories": "(one of: clutch, backpack, crossbody, belt bag, tote, shopper, briefcase)", 
         "fewshots_silhouette": '',
     },
@@ -272,10 +284,9 @@ GENERAL_PROMPT  = f'''
 You are a fashion-attribute extractor.
 
 ### Global rules.  
-• `category` → top-level product type label used for routing taxonomy and vocabularies of **META_CATEGORY_NAME**: **CATEGORY_EXAMPLES**.
 • `sex` → `f` | `m` | `u`.  Mean: female, male, unisex.
 • `fit` → `fitted` | `semi-fitted` | `oversized`.
-• `length` → `mini`, `midi` (from knee to lower calf), `maxi`(at the foot).
+• `length` → `mini`, `midi` (from knee to lower calf), `maxi`(from lower calf to the foot). If assimetric, specify both lengths.
 • `pockets` → one of: `non` or type of poket - e.g. kangaroo, faux, cargo, etc.
 • `pattern` → `no-print` | `colorblock` | `abstract` | `animal` | `watercolor` | `checked` | `striped-horizontal` | `striped-vertical` | `geometric` | `lettering-emblem` | `military` | `polka-dot` | `ethno` | `floral` | `crushed` | `draped` | `pleated`. Visible lines also count as pattern.
 • `color_temperature` →  `warm`| `cold` | `achromatic`. Most colors can be warm or cool, depending on their yellow or blue undertones.
@@ -313,18 +324,16 @@ You are a fashion-attribute extractor.
   - gabardine
   - satin.
 • `surface` - one or a list of the following options:
-**matte** – flat, non-reflective surface.  
-**semi-matte** – flat surface, slightly reflective, soft sheen.  
-**shiny** – flat surface, glossy, light-reflecting finish. 
+**matte** - flat, non-reflective surface.  
+**semi-matte** - flat surface, slightly reflective, soft sheen.  
+**shiny** - flat surface, glossy, light-reflecting finish. 
 **sheer/transparent** - gauzy, airy, see-through surface (e.g., chiffon, organza).
 **textured** - garment have other the Visible or tactile relief with uneven structure.
 • `textured_surface_type` - if `surface = textured`, specify the exact texture (e.g., tweed, boucle, ribbed, crinkled, drapping).
 • `season` → One of: `summer` (only summer wear), `demi` (multi-season), `winter` (only winter wear).
-• `model_construction` → category-specific canonical cut/shape/silhouette label if exist **MODEL_EXAMPLES** or сonstruction features not mentioned above.
-• `cut_features`→ multi-tag field for **only** not mentioned above intentional **patternmaking** and **construction** techniques. Records stable design choices—**shaping**, **openings**, **paneling & seam placement**, **line direction/symmetry**, **edge finishes**, **fastening setup**, **internal supports**—сonstructions features that remain legible in wear and motion.
 • `base` - boolean, is the garment basic? A basic garment is an element of a casual wardrobe with: a simple, straight, clean cut (no ruffles, drapery, complex construction, complex asymmetry, or designer “tricks”);
 garments that qualify as basic = those with a straightforward cut. Surface: the shape is simple, but the surface can be interesting (fabric, texture, prints or color), but without complicating decorative details (construction-intensive; many pieces and style lines; advanced shaping/volume (draping, pleating, layering, engineered openings); complex finishes and internal structure.).
-• `style` - one or a list of the following options. Assign every style whose criteria it meets. A single garment can carry multiple labels:
+• `style` - one or more of the following styles. A single garment may fit multiple labels. Usualy it's a base + another style. Rarely two non-base styles. Use the descriptions below to understand each style’s overall vibe rather than focusing on strict traits. If an item matches the vibe of a style, assign that style.
 **military**  
 Uniform roots after WWI, reinforced post-WWII, revived 1970s protest, embedded in 1980s–1990s rock and grunge, remains popular. Structured silhouette, dense fabrics, epaulettes, double-breasted plackets, patch pockets, straps, lacing. Palette: khaki, pistachio, swamp green, navy, grey, black. Details: zippers, matte metal buttons, badges, insignia. Footwear: combat boots, rough utilitarian shoes. Impression: strict, disciplined, utilitarian. Quick ID: khaki field jacket with epaulettes. Contrast with Marine: breezy light forms vs. strict structure.
 **safari**  
@@ -337,7 +346,8 @@ Palette: natural muted for everyday, light and dressy for competitions — e.g. 
 **dandy**  
 Dandy style is built on basic pieces styled after menswear. It is not androgyny but emphasized femininity through accentuating and exaggerating masculine elements — sharp shoulders, straight cuts, ties, vests, masculine shoes — to create a bold yet feminine look. Not unisex: the image reads femininity. Not just base: dandy always "exaggerates" masculine elements. Dandies were marked by idle elegance, refined aesthetics, meticulous grooming, and a strict wardrobe. The total look should be laconic but expressive. The mood is sharp, confident, a little ironic, with an undertone of freedom and defiance.
 **retro**  
-Modern clothing styled after past decades (mainly 1920s, 1930s, 1940s, 1950s). Not originality, but recognizable era styling by silhouettes, prints, fabrics.
+Modern clothing styled after past decades (mainly 1920s, 1930s, 1940s, 1950s). Not originality, but recognizable era styling by silhouettes, prints, fabrics. 
+Here you MUST specify the decade!
 **drama**  
 Theatrical effect, wow-factor, sexuality with provocation, luxury with aggression. Focus on power and attention, not comfort. Shape: armor-like silhouettes, sharp shoulders, tight waist, graphic hips, dramatic flare. Materials: leather, eco-leather, vinyl, wool suiting, mesh, lace, sequins, lycra. Decor: spikes, studs, big eyelets, straps, bold zippers, heavy buckles.Accessories: corset belts, chokers, ear cuffs, over-the-knee boots, pointed shoes, second-skin gloves. Colors: black dominates; accents in white, red, emerald, sapphire, gold, silver
 Distinctions from military/safari: drama = glamour and nightlife; military/safari = function and nature. From avant-garde: drama = loud, sensual, rich; avant-garde = quiet, intellectual
@@ -348,7 +358,7 @@ Stems from the bohemian milieu (Romani → French creatives), then ’60s hippie
 **romantic**  
 Naive, girlish, dreamy mood. Colors are pastel, soft, lightened (never black or bright red). Always ruffles, bows, drapery, pleats, layered skirts, bell or baby-doll shapes, tiering, puff/“ram’s horn” sleeves, narrow waist with voluminous skirt, etc. Fabrics are airy and flowing — silk, organza, lace, sometimes feathers or fur. Prints are childlike: flowers, hearts, butterflies, polka dots, cute or cartoon motifs. Creates an image that is tender and naive, not overtly sexual.
 **feminine**  
-Womanly lady-like style, elegance and adult confidence, figure-flattering. Any colors. Complex cut with folds, drapery, waist and hip accents, moderate slits or necklines. Preferred lengths: knee, midi, maxi. Silhouettes fitted or semi-fitted. Prints include floral, watercolor, polka dots, geometry, check. Accessories are lady-like: pumps, sandals, fitted boots, small structured handbags. Jewelry is modern and refined, not retro. Overall image is noble, graceful, attractive without vulgarity, less “fairy-like” than Romantic, more focused on sensuality. Bags/Jewelry: modern refined (avoid retro “granny” vibe).
+Womanly lady-like style, elegance and adult confidence, figure-flattering. Complex cut with folds, drapery, waist and hip accents, moderate slits or necklines. Preferred lengths: knee, midi, maxi. Silhouettes fitted or semi-fitted. Prints include floral, watercolor, polka dots, geometry, check. Accessories are lady-like: pumps, sandals, fitted boots, small structured handbags. Jewelry is modern and refined, not retro. Overall image is noble, graceful, attractive without vulgarity, less “fairy-like” than Romantic and in contrast looks serious and focused on sensuality. Bags/Jewelry: modern refined (avoid retro “granny” vibe).
 **conceptualism**  
 Avant-garde style. Clothing as idea or manifesto. Unusual materials and forms; concept more important than practicality. May be sculptural or theatrical, not necessarily wearable, designed to provoke emotion: e.g Lady Gaga’s meat dress; Met Gala themes, Jeremy Scott’s fast-food looks.
 **de-constructivism**  
@@ -356,27 +366,29 @@ Avant-garde style. About breaking construction: garments appear deliberately “
 **minimalism**  
 “Simple but not simplistic” — a modern base with a touch of avant-garde. Maximum simplicity and “silence”: pure forms and reduced decoration. А clean cut and at least one avant-garde accent: asymmetry, unusual cutouts/slits, subtle proportion shifts, raw edges, exposed seams, streamlined silhouettes, structured forms, maxi length, architectural lines, color-blocking. Fabrics: wool, knits, suiting, denim, leather; matte or semi-matte, smooth textures, ribbed knits allowed. Palette: neutrals, pastels, brights/neons on simple shapes; monochrome, restrained checks/stripes, geometric motifs; accessories pared-down with twist (e.g.square-toe footwear). Focus on form itself. Cold intellectual minimalism.
 **classic**  
-Casual style, but strict protocol clothing for officials: suit sets, closed dresses, calm palette (navy, grey, black, beige), minimal jewelry. Purpose — reliability and restraint, not fashion. timeless “reliable uniform”. Very rare. Qween family, etc.
+Base. Casual style, but strict protocol clothing for officials: suit sets, closed dresses, calm palette (navy, grey, black, beige), minimal jewelry. Purpose — reliability and restraint, not fashion. timeless “reliable uniform”. Very rare. Qween family, etc.
 **business-best**  
-Casual style, but Modern version of classic for conservative professions (diplomats, bankers, lawyers). Strict suits, restrained colors (navy, grey, burgundy, emerald), small checks or stripes allowed. Contemporary cuts without extremes. Goal — status and trust.
+Base. Casual style, but Modern version of classic for conservative professions (diplomats, bankers, lawyers). Strict suits, restrained colors (navy, grey, burgundy, emerald), small checks or stripes allowed. Contemporary cuts without extremes. Goal — status and trust.
 **business-casual**  
-Casual style, but Less strict business style: blazers, trousers, pencil skirts, blouses, soft suit fabrics. Neutral with muted accents. Allows modern silhouettes, textures and accessories. Professional but not rigid.
+Base. Casual style, but Less strict business style: blazers, trousers, pencil skirts, blouses, soft suit fabrics. Neutral with muted accents. Allows modern silhouettes, textures and accessories. Professional but not rigid.
 Common in conservative industries focused on money and reputation: finance, law, pharmaceuticals. Usually explicitly prescribed and followed at all levels, especially by employees with representative functions — the “face of the company.” Modern cuts combined with a system of restrictions: clothing should minimize fuss, inspire trust, and convey stability and reliability — not flashy success, but steady professionalism.
 **smart-casual**  
-Casual style, but Appropriate for both conservative and creative professions without a strict dress code. Balances fashion, chic, and individuality, allowing more freedom of self-expression while keeping a polished look.
-Relaxed business style with casual elements: blazer + jeans, shirt + chinos, simple dresses. Items combine comfort and respectability. Wider palette than business-casual but without excess.
-**city-casual**  
-Everyday basic casual clothes: jeans, t-shirts, sweatshirts, sneakers. Focus on comfort, practicality, and simplicity.
+Base. Casual style, but more appropriate for creative professions or without a strict dress code. Balances fashion, chic, and individuality, allowing more freedom of self-expression while keeping a polished look.
+Relaxed business style with casual elements, e.g.: blazer+jeans, shirt+chinos, t-shirts+suit, suit+sneakers, simple dresses, slip dress + sweater, pleated midi skirt + tank top + linen shirt. Items combine comfort and respectability.
+**city-casual** 
+Everyday basic casual clothing — less formal than the above. Includes most categories except very formal items (e.g., blazers) e.g.: jeans, T-shirts, sweatshirts, sneakers and other garments once called "sportswear" but now worn casually. Focus on comfort, practicality and simplicity.
 • `confidence` is a float **0–1** (0.75 = medium-sure).
+• `category` → top-level product type label used for routing taxonomy and vocabularies of **META_CATEGORY_NAME**: **CATEGORY_EXAMPLES**.
+• `model_construction` → category-specific canonical cut/shape/silhouette label if exist **MODEL_EXAMPLES** or сonstruction features not mentioned above.
+• `cut_features`→ multi-tag field for **only** not mentioned above intentional **patternmaking** and **construction** techniques. Records stable design choices—**shaping**, **openings**, **paneling & seam placement**, **line direction/symmetry**, **edge finishes**, **fastening setup**, **internal supports**—сonstructions features that remain legible in wear and motion.
 
 ### Instructions
-1.Use only the predefined values listed above. No free-text values allowed.
-2.Every field must be filled — always select the closest option, never leave empty.
-3.Input may be in Russian or English; output enums are always English.
-4. Analyze the description of the item and the image containing it.
-• `consistency_check` → `match` if the image contain the wardrobe item explicitly named in the description. `mismatch` - if the item's attributes differ from the description, `missing` - if missing.
-5. If match - take data from description, add attributes from image.
-6. If missing or mismatch - take category from description, other attributes from image, but only for the described item.
+1.Input: Russian or English. Output enums: English.
+2.If a required field is neither visible in the image nor mentioned in the description, leave it empty, don't make it up. Otherwise select the closest option.
+3. Analyze the item's description and image. 
+• `consistency_check` → `match` image shows the item named in the description; `mismatch` - attributes differ; `missing` - item absent; `cropped` - item is cropped in the image.
+4. If match - take data from description, add attributes from image.
+5. If missing or mismatch - take category from description, other attributes from image, but only for the described item.
 '''
 
 '''
